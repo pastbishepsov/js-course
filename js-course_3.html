@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS Frontend Course</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & ROOT ───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:     #07090f;
+  --s1:     #0c1019;
+  --s2:     #101520;
+  --s3:     #171f2e;
+  --b1:     #1c2a40;
+  --b2:     #273d5c;
+  --t1:     #e8eeff;
+  --t2:     #94adc9;
+  --t3:     #475e78;
+  --green:  #22d3a0;
+  --yellow: #fbbf24;
+  --red:    #f87171;
+  --blue:   #60a5fa;
+  --font:   'Syne', sans-serif;
+  --mono:   'IBM Plex Mono', monospace;
+  --serif:  'Lora', serif;
+}
+html { height: 100%; }
+body { height: 100%; background: var(--bg); color: var(--t1); font-family: var(--font); overflow: hidden; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--b2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--t3); }
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { cursor: pointer; font-family: var(--font); }
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+#app { display: flex; flex-direction: column; height: 100vh; }
+
+/* TOPBAR */
+#topbar {
+  display: flex; align-items: center; gap: 16px;
+  padding: 12px 24px; background: var(--s1);
+  border-bottom: 1px solid var(--b1); flex-shrink: 0;
+  position: relative; overflow: hidden;
+}
+#topbar::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background: linear-gradient(180deg,var(--green),var(--blue));
+}
+.top-title { font-size: 14px; font-weight: 800; letter-spacing: .5px; white-space: nowrap; }
+.top-sub { font-size: 11px; color: var(--t3); font-family: var(--mono); white-space: nowrap; }
+.top-prog-wrap { flex: 1; position: relative; height: 6px; background: var(--s3); border-radius: 3px; overflow: hidden; }
+.top-prog-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg,var(--green),var(--blue)); transition: width .6s ease; }
+.top-pct { font-size: 12px; font-weight: 700; font-family: var(--mono); color: var(--blue); white-space: nowrap; }
+
+/* BODY */
+#body { display: flex; flex: 1; overflow: hidden; }
+
+/* SIDEBAR */
+#sidebar {
+  width: 230px; flex-shrink: 0; background: var(--s1);
+  border-right: 1px solid var(--b1); overflow-y: auto;
+  padding: 16px 10px; display: flex; flex-direction: column; gap: 4px;
+}
+.wk-btn {
+  width: 100%; text-align: left; padding: 11px 13px;
+  border-radius: 10px; border: 1px solid transparent;
+  background: transparent; color: var(--t2);
+  display: flex; align-items: center; gap: 10px;
+  transition: all .18s; position: relative;
+}
+.wk-btn:hover:not(.locked) { background: var(--s3); color: var(--t1); }
+.wk-btn.active { color: var(--t1); font-weight: 700; }
+.wk-btn.locked { opacity: .35; cursor: not-allowed; }
+.wk-emoji { font-size: 20px; flex-shrink: 0; }
+.wk-info { flex: 1; min-width: 0; }
+.wk-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wk-stat { font-size: 11px; color: var(--t3); font-family: var(--mono); margin-top: 2px; }
+.sidebar-hint {
+  margin-top: auto; padding: 12px 6px 0; border-top: 1px solid var(--b1);
+  font-size: 11px; color: var(--t3); line-height: 1.5;
+}
+
+/* MAIN */
+#main { flex: 1; overflow-y: auto; padding: 28px 32px 80px; }
+
+/* WEEK HEADER */
+.week-hero { margin-bottom: 24px; }
+.week-number { font-size: 11px; font-family: var(--mono); color: var(--t3); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; }
+.week-title { font-size: 28px; font-weight: 800; line-height: 1.1; margin-bottom: 6px; }
+.week-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+.wtag { padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; font-family: var(--mono); background: var(--s3); color: var(--t2); border: 1px solid var(--b1); }
+
+/* PROJECT CARD */
+.proj-card {
+  padding: 18px 20px; border-radius: 14px; border: 1px solid;
+  margin-bottom: 24px; display: flex; gap: 16px;
+  position: relative; overflow: hidden;
+}
+.proj-card::before {
+  content:'ФИНАЛЬНЫЙ ПРОЕКТ';
+  position:absolute; top:10px; right:14px;
+  font-size:9px; font-family:var(--mono); letter-spacing:2px;
+  font-weight:700; opacity:.4;
+}
+.proj-icon { font-size: 32px; flex-shrink: 0; }
+.proj-name { font-size: 15px; font-weight: 700; margin-bottom: 5px; }
+.proj-desc { font-size: 12.5px; color: var(--t2); line-height: 1.6; }
+.proj-time { font-size: 11px; font-family: var(--mono); margin-top: 8px; opacity: .6; }
+
+/* WEEK PROGRESS BAR */
+.week-prog { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.week-prog-bar { flex: 1; height: 4px; background: var(--s3); border-radius: 2px; overflow: hidden; }
+.week-prog-fill { height: 100%; border-radius: 2px; transition: width .5s; }
+.week-prog-label { font-size: 11px; font-family: var(--mono); white-space: nowrap; }
+
+/* MODULES */
+.modules { display: flex; flex-direction: column; gap: 10px; }
+.mod {
+  border-radius: 12px; border: 1px solid var(--b1);
+  overflow: hidden; transition: border-color .25s, box-shadow .25s;
+}
+.mod:hover { border-color: var(--b2); }
+.mod.is-done-practice { border-color: rgba(34,211,160,.3); }
+.mod.is-done-theory   { border-color: rgba(96,165,250,.15); }
+
+.mod-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 15px 16px; cursor: pointer; background: var(--s1);
+  user-select: none; transition: background .15s;
+}
+.mod-header:hover { background: var(--s2); }
+.mod-header:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+.mod-header-icon { font-size: 20px; flex-shrink: 0; width: 28px; text-align: center; }
+.mod-header-info { flex: 1; min-width: 0; }
+.mod-header-title { font-size: 14px; font-weight: 600; margin-bottom: 5px; line-height: 1.3; }
+.mod-header-tags { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+.tag {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 8px; border-radius: 99px; font-size: 10px;
+  font-weight: 700; letter-spacing: .4px; text-transform: uppercase;
+  border: 1px solid; font-family: var(--mono);
+}
+.tag-t    { background: rgba(96,165,250,.1);  color: #93c5fd; border-color: rgba(96,165,250,.25); }
+.tag-p    { background: rgba(248,113,113,.1); color: #fca5a5; border-color: rgba(248,113,113,.25); }
+.tag-ok   { background: rgba(34,211,160,.1);  color: #6ee7b7; border-color: rgba(34,211,160,.25); }
+.tag-time { background: rgba(255,255,255,.04); color: var(--t3); border-color: var(--b1); }
+.tag-req  { background: rgba(248,113,113,.08); color: #f87171; border-color: rgba(248,113,113,.2); }
+.tag-diff-s { background:rgba(34,211,160,.08); color:var(--green); border-color:rgba(34,211,160,.2); }
+.tag-diff-m { background:rgba(251,191,36,.08); color:var(--yellow); border-color:rgba(251,191,36,.2); }
+.tag-diff-h { background:rgba(248,113,113,.08); color:var(--red); border-color:rgba(248,113,113,.2); }
+.mod-chevron { color: var(--t3); font-size: 10px; flex-shrink: 0; transition: transform .22s ease; }
+.mod-chevron.open { transform: rotate(90deg); }
+
+/* MODULE BODY */
+.mod-body { padding: 0 18px 20px; background: var(--s1); border-top: 1px solid var(--b1); animation: slideDown .2s ease; }
+@keyframes slideDown { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:none; } }
+
+.prose {
+  font-family: var(--serif); font-size: 14px; line-height: 1.85;
+  color: var(--t2); margin: 16px 0;
+}
+.prose p { margin-bottom: 10px; }
+.prose p:last-child { margin-bottom: 0; }
+.prose strong { color: var(--t1); font-weight: 600; font-family: var(--font); }
+.prose code {
+  font-family: var(--mono); font-size: 12px;
+  background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 4px; color: #a5b4fc;
+}
+
+.code-wrap { position: relative; margin: 14px 0; }
+.code-block {
+  background: #030508; border: 1px solid var(--b1); border-radius: 10px;
+  padding: 16px 16px 16px 16px; font-family: var(--mono); font-size: 12.5px;
+  line-height: 1.8; color: #b4ccec; overflow-x: auto; white-space: pre;
+}
+.code-block .kw  { color: #c084fc; }
+.code-block .str { color: #86efac; }
+.code-block .cmt { color: #3f5870; font-style: italic; }
+.code-block .num { color: #fcd34d; }
+.code-block .fn  { color: #67e8f9; }
+.copy-btn {
+  position: absolute; top: 9px; right: 9px;
+  background: var(--s3); border: 1px solid var(--b2); color: var(--t3);
+  border-radius: 6px; padding: 4px 9px; font-size: 11px; font-family: var(--mono);
+  cursor: pointer; transition: all .15s; opacity: 0;
+}
+.code-wrap:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: var(--b1); color: var(--t1); border-color: var(--t3); }
+.copy-btn.copied { color: var(--green); border-color: var(--green); }
+
+.infobox {
+  display: flex; gap: 10px; padding: 12px 14px;
+  border-radius: 9px; font-size: 13px; line-height: 1.7;
+  margin: 10px 0; align-items: flex-start;
+}
+.infobox-icon { flex-shrink: 0; font-size: 15px; margin-top: 1px; }
+.infobox-text { white-space: pre-line; }
+.trap { background: rgba(248,113,113,.07); border: 1px solid rgba(248,113,113,.2); color: #fca5a5; }
+.tip  { background: rgba(34,211,160,.07);  border: 1px solid rgba(34,211,160,.2);  color: #86efac; }
+.trap .infobox-icon::before { content: '⚠️'; }
+.tip  .infobox-icon::before { content: '🎯'; }
+
+.links-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.link-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 8px; font-size: 12px;
+  background: var(--s3); color: var(--t2); border: 1px solid var(--b1);
+  text-decoration: none; transition: all .18s; font-weight: 500;
+}
+.link-chip:hover { background: var(--b1); color: var(--t1); border-color: var(--b2); text-decoration: none; transform: translateY(-1px); }
+
+.task-block {
+  background: #030508; border: 1px solid rgba(248,113,113,.2);
+  border-left: 3px solid var(--red); border-radius: 0 10px 10px 0;
+  padding: 16px 16px 16px 18px; font-size: 13.5px; line-height: 1.9;
+  color: #d8e6f8; white-space: pre-line; margin: 14px 0;
+  font-family: var(--serif);
+}
+.task-block strong { color: #fff; font-family: var(--font); font-weight: 700; }
+
+.req-note {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 13px; border-radius: 8px; margin-top: 16px; margin-bottom: 14px;
+  background: rgba(248,113,113,.07); border: 1px solid rgba(248,113,113,.15);
+  font-size: 12.5px; color: #f87171; font-weight: 600;
+}
+
+.actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; align-items: center; }
+.btn {
+  padding: 9px 20px; border-radius: 9px; border: none;
+  font-size: 13px; font-weight: 700; transition: all .18s;
+  display: inline-flex; align-items: center; gap: 6px;
+  position: relative; overflow: hidden;
+}
+.btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: white; opacity: 0; transition: opacity .15s;
+}
+.btn:hover::after { opacity: .06; }
+.btn:active { transform: scale(.97); }
+.btn-skip  { background: var(--s3); color: var(--t2); border: 1px solid var(--b1); }
+.btn-skip:hover  { background: var(--b1); color: var(--t1); border-color: var(--b2); }
+.btn-read  { background: rgba(96,165,250,.12); color: #93c5fd; border: 1px solid rgba(96,165,250,.3); }
+.btn-read:hover  { background: rgba(96,165,250,.2); }
+.btn-done  { color: #000; font-weight: 800; }
+.btn-done:hover  { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,.4); }
+.done-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 15px; border-radius: 9px; font-size: 13px; font-weight: 700;
+  background: rgba(34,211,160,.08); border: 1px solid rgba(34,211,160,.25); color: var(--green);
+  animation: popIn .25s ease;
+}
+@keyframes popIn { from { transform: scale(.9); opacity:0; } to { transform:none; opacity:1; } }
+
+/* ── TEST RUNNER ─────────────────────────────────────────── */
+.task-goal { font-size: 13.5px; font-family: var(--serif); color: var(--t1); padding: 12px 14px; background: var(--s3); border-radius: 9px; border-left: 3px solid var(--green); margin: 16px 0 14px; line-height: 1.5; }
+.editor-label { font-size: 11px; font-family: var(--mono); color: var(--t3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 7px; }
+.editor { width: 100%; min-height: 200px; background: #030508; border: 1px solid var(--b1); border-radius: 10px; padding: 14px; font-family: var(--mono); font-size: 12.5px; line-height: 1.75; color: #b4ccec; resize: vertical; outline: none; tab-size: 2; transition: border-color .15s; display: block; }
+.editor:focus { border-color: var(--b2); }
+.run-row { display: flex; gap: 8px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
+.run-btn { padding: 9px 20px; border-radius: 9px; border: none; background: var(--green); color: #000; font-weight: 800; font-size: 13px; font-family: var(--font); cursor: pointer; transition: all .18s; display: flex; align-items: center; gap: 6px; }
+.run-btn:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(34,211,160,.3); }
+.run-hint { font-size: 11px; color: var(--t3); font-family: var(--mono); }
+.test-results { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+.test-case { display: flex; align-items: flex-start; gap: 10px; padding: 10px 13px; border-radius: 8px; font-size: 12.5px; border: 1px solid; animation: popIn .2s ease; }
+.test-pass { background: rgba(34,211,160,.07); border-color: rgba(34,211,160,.25); color: #86efac; }
+.test-fail { background: rgba(248,113,113,.07); border-color: rgba(248,113,113,.25); color: #fca5a5; }
+.test-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+.test-label { flex: 1; font-family: var(--mono); line-height: 1.4; }
+.test-got { font-size: 11px; opacity: .65; margin-top: 3px; font-family: var(--mono); }
+.all-pass-banner { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 10px; background: rgba(34,211,160,.1); border: 1px solid rgba(34,211,160,.3); color: var(--green); font-weight: 700; font-size: 14px; animation: popIn .3s ease; margin-top: 4px; }
+
+/* ── STEPS TASK ──────────────────────────────────────────── */
+.task-goal-steps { font-size: 13.5px; font-family: var(--serif); color: var(--t1); padding: 12px 14px; background: var(--s3); border-radius: 9px; border-left: 3px solid var(--blue); margin: 16px 0 14px; line-height: 1.5; }
+.steps-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+.step { display: flex; gap: 12px; align-items: flex-start; padding: 10px 14px; background: var(--s2); border: 1px solid var(--b1); border-radius: 9px; font-size: 13px; line-height: 1.6; color: var(--t2); }
+.step-num { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; font-family: var(--mono); background: var(--b2); color: var(--t2); margin-top: 1px; }
+.step code { font-family: var(--mono); font-size: 11.5px; background: rgba(255,255,255,.07); padding: 1px 5px; border-radius: 3px; color: #a5b4fc; }
+.step b { color: var(--t1); font-family: var(--font); }
+.tpl-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 9px; background: rgba(251,191,36,.1); color: var(--yellow); border: 1px solid rgba(251,191,36,.25); font-size: 13px; font-weight: 700; font-family: var(--font); cursor: pointer; transition: all .18s; margin-bottom: 16px; }
+.tpl-btn:hover { background: rgba(251,191,36,.18); transform: translateY(-1px); }
+.selfcheck-wrap { margin-top: 14px; }
+.selfcheck-title { font-size: 11px; font-family: var(--mono); color: var(--t3); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+.check-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; cursor: pointer; transition: background .12s; margin-bottom: 4px; color: var(--t2); user-select: none; }
+.check-item:hover { background: var(--s3); }
+.check-item input[type=checkbox] { width: 15px; height: 15px; flex-shrink: 0; accent-color: var(--green); cursor: pointer; margin-top: 2px; }
+.check-item.checked { color: var(--t1); }
+.check-item a { color: var(--blue); }
+
+/* ── CHECKLIST TASK ──────────────────────────────────────── */
+.checklist-wrap { display: flex; flex-direction: column; gap: 6px; margin: 14px 0; }
+.cl-item { display: flex; align-items: flex-start; gap: 11px; padding: 11px 14px; background: var(--s2); border: 1px solid var(--b1); border-radius: 9px; font-size: 13px; line-height: 1.55; cursor: pointer; transition: all .15s; color: var(--t2); user-select: none; }
+.cl-item:hover { background: var(--s3); border-color: var(--b2); }
+.cl-item.checked { background: rgba(34,211,160,.05); border-color: rgba(34,211,160,.2); color: var(--t1); }
+.cl-item input[type=checkbox] { width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--green); cursor: pointer; margin-top: 1px; }
+.cl-item code { font-family: var(--mono); font-size: 11.5px; background: rgba(255,255,255,.07); padding: 1px 5px; border-radius: 3px; color: #a5b4fc; }
+.cl-item a { color: var(--blue); }
+.cl-progress { font-size: 11px; font-family: var(--mono); color: var(--t3); padding: 6px 0 10px; display: flex; align-items: center; gap: 8px; }
+.cl-prog-bar { flex: 1; height: 3px; background: var(--s3); border-radius: 2px; overflow: hidden; }
+.cl-prog-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width .3s; }
+
+/* WEEK COMPLETE BANNER */
+.week-complete {
+  margin-top: 24px; padding: 24px; border-radius: 16px; text-align: center;
+  background: linear-gradient(135deg, rgba(34,211,160,.08), rgba(96,165,250,.08));
+  border: 1px solid rgba(34,211,160,.25);
+}
+.wc-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+.wc-sub   { font-size: 13px; color: var(--t2); margin-bottom: 14px; }
+
+/* LOCKED */
+.locked-screen { text-align: center; padding: 80px 20px; }
+.locked-icon  { font-size: 48px; margin-bottom: 14px; }
+.locked-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.locked-sub   { font-size: 13px; color: var(--t3); line-height: 1.6; }
+
+
+/* ── MODULE NOTES ────────────────────────────────────────── */
+.mod-notes-wrap { margin-top: 18px; border-top: 1px solid var(--b1); padding-top: 14px; }
+.mod-notes-label {
+  display: flex; align-items: center; gap: 7px; margin-bottom: 7px;
+  font-size: 11px; font-family: var(--mono); color: var(--t3);
+  text-transform: uppercase; letter-spacing: 1px; cursor: pointer; user-select: none;
+  transition: color .15s;
+}
+.mod-notes-label:hover { color: var(--t2); }
+.mod-notes-label .note-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--yellow); display: none; flex-shrink: 0;
+}
+.mod-notes-label .note-dot.has-note { display: block; }
+.mod-notes-textarea {
+  width: 100%; background: var(--bg); border: 1px solid var(--b1);
+  border-radius: 9px; padding: 11px 13px; color: var(--t2);
+  font-family: var(--serif); font-size: 13px; line-height: 1.7;
+  resize: vertical; min-height: 80px; outline: none;
+  transition: border-color .15s, color .15s;
+  display: block;
+}
+.mod-notes-textarea:focus { border-color: var(--b2); color: var(--t1); }
+.mod-notes-textarea::placeholder { color: var(--t3); font-style: italic; }
+.mod-notes-saved {
+  font-size: 10px; font-family: var(--mono); color: var(--green);
+  margin-top: 4px; opacity: 0; transition: opacity .3s;
+}
+.mod-notes-saved.visible { opacity: 1; }
+
+/* ── MENTOR FAB ──────────────────────────────────────────── */
+#fab {
+  position: fixed; bottom: 26px; right: 26px;
+  width: auto; height: 48px; border-radius: 24px;
+  background: linear-gradient(135deg,#7c3aed,#4f46e5);
+  border: none; font-size: 13px; font-weight: 700; color: #fff;
+  padding: 0 20px;
+  box-shadow: 0 4px 24px rgba(124,58,237,.5);
+  transition: all .2s; z-index: 200;
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none;
+}
+#fab:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(124,58,237,.6); filter: brightness(1.1); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div>
+      <div class="top-title">⚡ JS Frontend Course</div>
+      <div class="top-sub" id="top-sub-text">Загрузка...</div>
+    </div>
+    <div class="top-prog-wrap"><div class="top-prog-fill" id="global-bar" style="width:0%"></div></div>
+    <div class="top-pct" id="global-pct">0%</div>
+  </div>
+
+  <div id="body">
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+      <div id="sidebar-weeks"></div>
+      <div class="sidebar-hint">🔓 Следующая неделя открывается после выполнения всех <span style="color:var(--red)">практических</span> заданий</div>
+    </div>
+
+    <!-- MAIN -->
+    <div id="main"></div>
+  </div>
+</div>
+
+<!-- MENTOR LINK -->
+<a id="fab" href="https://claude.ai" target="_blank" title="Спросить у ментора">
+  🤖 Спросить ментора
+</a>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   COURSE DATA
+═══════════════════════════════════════════════════════════ */
+const WEEKS = [
+{
+  id:1, emoji:'⚡', color:'#22d3a0', bg:'rgba(34,211,160,0.07)',
+  title:'Оживи браузер',
+  tags:['Переменные','Функции','Условия','Циклы','Массивы'],
+  project:{ icon:'🎮', name:'Игра «Угадай слово» (Hangman)', time:'2–4 ч',
+    desc:'HTML + чистый JS, без библиотек. Строки, массивы, DOM и события — всё сразу в одном живом проекте. Ты удивишься, сколько уже умеешь после первой недели.' },
+  modules:[
+    { id:'1t1', kind:'t', icon:'📦', title:'Переменные и типы данных', time:'20 мин',
+      body:`<b>let</b> — переменная, которую можно изменить. <b>const</b> — переменная, которую изменить нельзя. <b>var</b> — старый способ, не используй: он ведёт себя непредсказуемо.
+
+Думай о переменной как об именованной коробке. <code>let age = 25</code> — создал коробку с именем «age» и положил туда 25. <code>const PI = 3.14</code> — коробка запаяна, значение не поменяешь.
+
+В JS есть несколько типов данных — то есть разные виды того, что можно положить в коробку: текст (<code>string</code>), число (<code>number</code>), да/нет (<code>boolean</code>), пусто (<code>null</code> и <code>undefined</code>), объект (<code>object</code>).`,
+      code:`<span class="kw">let</span> name = <span class="str">"Алекс"</span>;        <span class="cmt">// можно изменить позже</span>
+<span class="kw">const</span> PI = <span class="num">3.14159</span>;       <span class="cmt">// нельзя переприсвоить</span>
+<span class="kw">var</span> old = <span class="str">"не используй"</span>; <span class="cmt">// hoisting = непредсказуемые баги</span>
+
+<span class="kw">typeof</span> <span class="kw">null</span>   <span class="cmt">// → "object"  ← исторический баг JS, не исправят</span>
+<span class="kw">typeof</span> []     <span class="cmt">// → "object"  ← массив тоже object!</span>
+<span class="num">0.1</span> + <span class="num">0.2</span>    <span class="cmt">// → 0.30000000000000004  ← стандарт IEEE 754</span>`,
+      trap:'0.1 + 0.2 !== 0.3. Это не баг конкретно JS — это стандарт IEEE 754 для всех языков. Для денег всегда храни целые числа (копейки, центы).',
+      tip:'const obj = {}; obj.name = "ok" — это работает! const защищает ссылку, не само значение. Объект изменять можно.',
+      links:[{t:'Variables',u:'https://javascript.info/variables'},{t:'Data types',u:'https://javascript.info/types'}]
+    },
+    { id:'1t2', kind:'t', icon:'🔧', title:'Функции: три способа записи', time:'25 мин',
+      body:`Функция — это блок кода с именем. Написал один раз — вызываешь сколько угодно раз.
+
+Записать функцию можно тремя способами, и они немного отличаются по поведению.
+
+<b>Declaration</b> (через слово <code>function</code>) — можно вызвать даже до строки где она написана, JS сам её поднимет вверх файла.
+
+<b>Expression</b> (присвоить переменной) и <b>Arrow</b> (стрелочная) — нельзя вызвать до объявления, и это нормально: просто объявляй их раньше чем используешь.
+
+Стрелочные функции короче и удобнее для простых случаев. Но у них нет своего <code>this</code> — это важно когда будешь работать с объектами.`,
+      code:`<span class="cmt">// Declaration — hoisting ✓, можно вызвать ДО строки объявления</span>
+<span class="kw">function</span> <span class="fn">greet</span>(name = <span class="str">"мир"</span>) { <span class="kw">return</span> <span class="str">\`Привет, \${name}!\`</span>; }
+
+<span class="cmt">// Expression — не поднимается</span>
+<span class="kw">const</span> greet = <span class="kw">function</span>(name) { <span class="kw">return</span> <span class="str">\`Привет, \${name}!\`</span>; };
+
+<span class="cmt">// Arrow — нет своего this, компактный синтаксис</span>
+<span class="kw">const</span> greet = (name) => <span class="str">\`Привет, \${name}!\`</span>;
+<span class="kw">const</span> double = n => n * <span class="num">2</span>; <span class="cmt">// один параметр + одно выражение → без {} и return</span>`,
+      trap:'Arrow functions не имеют своего this. Внутри методов объекта и в конструкторах — используй обычные function.',
+      tip:'Чистая функция: одни и те же аргументы → всегда один и тот же результат, без побочных эффектов. Это идеал. Стремись к нему.',
+      links:[{t:'Functions',u:'https://javascript.info/function-basics'},{t:'Arrow functions',u:'https://javascript.info/arrow-functions-basics'}]
+    },
+    { id:'1p1', kind:'p', icon:'🔥', title:'Задача: Умный калькулятор', time:'45 мин', diff:'s',
+      goal:'Напиши 5 функций: четыре арифметических + одну главную calculate(a, operator, b)',
+      starter:`function add(a, b) {
+  return ???; // верни сумму
+}
+
+function subtract(a, b) {
+  return ???; // верни разность
+}
+
+function multiply(a, b) {
+  return ???; // верни произведение
+}
+
+function divide(a, b) {
+  if (b === 0) return 'Делить на ноль нельзя!';
+  return ???; // верни частное
+}
+
+// Главная функция — вызывает нужную выше
+function calculate(a, operator, b) {
+  switch (operator) {
+    case '+': return add(a, b);
+    case '-': return ???;
+    case '*': return ???;
+    case '/': return ???;
+  }
+}`,
+      tests:[
+        {label:"calculate(2, '+', 3) → 5",   call:"calculate(2, '+', 3)",   expect:5},
+        {label:"calculate(10, '-', 4) → 6",  call:"calculate(10, '-', 4)",  expect:6},
+        {label:"calculate(6, '*', 7) → 42",  call:"calculate(6, '*', 7)",   expect:42},
+        {label:"calculate(20, '/', 4) → 5",  call:"calculate(20, '/', 4)",  expect:5},
+        {label:"divide(10, 0) → 'Делить на ноль нельзя!'", call:"divide(10, 0)", expect:'Делить на ноль нельзя!'},
+      ],
+      tip:'Замени все ??? на реальный код. switch(operator) { case "-": return subtract(a, b); ... }\nБез return в case — вернётся undefined.',
+    },
+    { id:'1t3', kind:'t', icon:'🔀', title:'Условия и циклы', time:'20 мин',
+      body:`<code>if / else</code> — стандартное условие. Если нужно просто выбрать одно из двух значений — есть более короткая запись, тернарный оператор: <code>условие ? если_да : если_нет</code>.
+
+Циклы позволяют повторять код много раз. Самый частый — <code>for</code>: задаёшь начало, условие продолжения и шаг.
+
+<b>for...of</b> — проходит по элементам массива. Это то что нужно в 90% случаев.
+
+<b>for...in</b> — проходит по ключам объекта. Не путай их между собой: <code>for...in</code> на массиве даст тебе индексы-строки, а не значения.
+
+<b>break</b> — выйти из цикла досрочно. <b>continue</b> — пропустить текущую итерацию и перейти к следующей.`,
+      code:`<span class="kw">const</span> status = age >= <span class="num">18</span> ? <span class="str">"взрослый"</span> : <span class="str">"несовершеннолетний"</span>;
+
+<span class="kw">const</span> fruits = [<span class="str">"яблоко"</span>, <span class="str">"банан"</span>, <span class="str">"киви"</span>];
+
+<span class="kw">for</span> (<span class="kw">const</span> fruit <span class="kw">of</span> fruits) console.log(fruit); <span class="cmt">// for...of ✓ для массивов</span>
+
+fruits.forEach((f, i) => console.log(<span class="str">\`\${i}: \${f}\`</span>)); <span class="cmt">// forEach = for...of + индекс</span>`,
+      trap:'for...in на массиве вернёт индексы-строки ("0","1","2"), не значения! Используй for...of или forEach для массивов.',
+      tip:'break выходит из цикла, continue пропускает итерацию. Это не плохой тон — это инструмент. Используй смело.',
+      links:[{t:'if/else',u:'https://javascript.info/ifelse'},{t:'Loops',u:'https://javascript.info/while-for'}]
+    },
+    { id:'1p2', kind:'p', icon:'🔥', title:'Задача: FizzBuzz', time:'20 мин', diff:'s',
+      goal:'Напиши fizzBuzz(n) — возвращает массив от 1 до n с заменой кратных чисел',
+      starter:`function fizzBuzz(n) {
+  const result = [];
+  for (let i = 1; i <= n; i++) {
+    if (i % 15 === 0) {
+      result.push('FizzBuzz');
+    } else if (i % 3 === 0) {
+      result.push(???); // что сюда?
+    } else if (i % 5 === 0) {
+      result.push(???); // что сюда?
+    } else {
+      result.push(???); // что сюда?
+    }
+  }
+  return result;
+}`,
+      tests:[
+        {label:"fizzBuzz(1) → [1]",              call:"JSON.stringify(fizzBuzz(1))",  expect:'[1]'},
+        {label:"fizzBuzz(3)[2] → 'Fizz'",        call:"fizzBuzz(3)[2]",               expect:'Fizz'},
+        {label:"fizzBuzz(5)[4] → 'Buzz'",        call:"fizzBuzz(5)[4]",               expect:'Buzz'},
+        {label:"fizzBuzz(15)[14] → 'FizzBuzz'",  call:"fizzBuzz(15)[14]",             expect:'FizzBuzz'},
+        {label:"fizzBuzz(6).length → 6",         call:"fizzBuzz(6).length",           expect:6},
+      ],
+      tip:"Порядок важен: сначала % 15, потом % 3, потом % 5. Иначе кратные 15 попадут в Fizz или Buzz раньше.",
+    },
+    { id:'1t4', kind:'t', icon:'🗃️', title:'Массивы: суперсилы JS', time:'25 мин',
+      body:`Массив — это список значений. Представь пронумерованные ящики в шкафу, начиная с нуля: <code>fruits[0]</code>, <code>fruits[1]</code>, <code>fruits[2]</code>.
+
+У массивов есть мощные встроенные методы, которые заменяют циклы:
+
+<b>map</b> — трансформирует каждый элемент и возвращает новый массив. Например, из массива чисел сделать массив удвоенных чисел.
+
+<b>filter</b> — оставляет только те элементы, для которых условие вернуло <code>true</code>.
+
+<b>reduce</b> — сворачивает весь массив в одно значение. Например, сумма всех чисел.
+
+Важно: <b>map, filter, reduce не меняют оригинальный массив</b> — они возвращают новый. А вот <code>push</code>, <code>pop</code>, <code>sort</code> — меняют оригинал. Всегда знай кто мутирует, а кто нет.`,
+      code:`<span class="kw">const</span> nums = [<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>,<span class="num">5</span>];
+
+nums.<span class="fn">map</span>(n => n * <span class="num">2</span>)               <span class="cmt">// [2,4,6,8,10] — трансформация каждого</span>
+nums.<span class="fn">filter</span>(n => n % <span class="num">2</span> === <span class="num">0</span>)     <span class="cmt">// [2,4] — только чётные</span>
+nums.<span class="fn">reduce</span>((acc, n) => acc + n, <span class="num">0</span>) <span class="cmt">// 15 — свернуть всё в одно значение</span>
+nums.<span class="fn">find</span>(n => n > <span class="num">3</span>)              <span class="cmt">// 4 — первый подходящий элемент</span>
+
+<span class="kw">const</span> [first, ...rest] = nums;         <span class="cmt">// деструктуризация</span>
+<span class="kw">const</span> copy = [...nums, <span class="num">6</span>];             <span class="cmt">// spread — копия + добавление</span>`,
+      trap:'push / pop / sort МУТИРУЮТ оригинал! map/filter/reduce — возвращают НОВЫЙ. Всегда знай, кто мутирует.\n\nSort числе без функции: arr.sort() сортирует как строки — "10" < "9". Всегда пиши: arr.sort((a,b) => a-b)',
+      tip:'[...arr].sort((a,b) => a-b) — скопируй через spread перед сортировкой, чтобы не трогать оригинальный массив.',
+      links:[{t:'Arrays',u:'https://javascript.info/array'},{t:'Array methods',u:'https://javascript.info/array-methods'}]
+    },
+    { id:'1p3', kind:'p', icon:'🔥', title:'Задача: Аналитика без цикла', time:'40 мин', diff:'m',
+      goal:'Замени все ??? на код, используя только filter / map / reduce / sort / join',
+      starter:`const students = [
+  { name: 'Анна',  grade: 92, passed: true  },
+  { name: 'Боря',  grade: 47, passed: false },
+  { name: 'Вика',  grade: 78, passed: true  },
+  { name: 'Гена',  grade: 55, passed: false },
+  { name: 'Дима',  grade: 88, passed: true  },
+];
+
+// 1. Массив ТОЛЬКО имён прошедших студентов
+const passedNames = students
+  .filter(s => ???)  // оставь только с passed: true
+  .map(s => ???);    // возьми только имя
+
+// 2. Средний балл всех студентов (округли Math.round)
+const avgGrade = Math.round(
+  students.reduce((sum, s) => ???, 0) / students.length
+);
+
+// 3. Студент с наивысшим баллом (весь объект)
+const topStudent = [...students]
+  .sort((a, b) => ???)[0]; // сортировка по убыванию grade
+
+// 4. Строка "Анна, Вика, Дима прошли курс"
+const summary = passedNames.join(???) + ' прошли курс';`,
+      tests:[
+        {label:"passedNames → ['Анна','Вика','Дима']",       call:"JSON.stringify(passedNames)",  expect:'["Анна","Вика","Дима"]'},
+        {label:"avgGrade → 72",                               call:"avgGrade",                     expect:72},
+        {label:"topStudent.name → 'Анна'",                   call:"topStudent.name",               expect:'Анна'},
+        {label:"summary → 'Анна, Вика, Дима прошли курс'",  call:"summary",                       expect:'Анна, Вика, Дима прошли курс'},
+      ],
+      tip:"reduce для среднего: (sum, s) => sum + s.grade, начальное значение 0\nsort по убыванию: (a, b) => b.grade - a.grade",
+    },
+  ]
+},
+{
+  id:2, emoji:'🌐', color:'#818cf8', bg:'rgba(129,140,248,0.07)',
+  title:'Живая страница',
+  tags:['DOM','События','localStorage','Формы'],
+  project:{ icon:'📝', name:'Todo App с сохранением', time:'3–5 ч',
+    desc:'Добавление, удаление, фильтрация задач. Данные не теряются при перезагрузке страницы. Это первое приложение которое ты сможешь показать людям.' },
+  modules:[
+    { id:'2t1', kind:'t', icon:'🌳', title:'DOM: HTML как объект JS', time:'20 мин',
+      body:`Когда браузер загружает HTML — он строит из него дерево объектов. Это дерево называется DOM. JS умеет читать и изменять это дерево прямо во время работы страницы — именно это делает страницы живыми.
+
+Чтобы найти элемент на странице, используй <code>querySelector</code> — он принимает CSS-селектор, такой же как в стилях:
+
+<code>document.querySelector('.btn')</code> — найдёт первую кнопку с классом btn.
+<code>document.querySelectorAll('li')</code> — найдёт все пункты списка.
+
+Когда нашёл элемент — можешь менять его текст, стили, классы, или вообще удалить его со страницы.
+
+Одно важное правило: если хочешь вставить текст который вводит пользователь — всегда используй <code>textContent</code>, не <code>innerHTML</code>. Иначе злоумышленник может вставить вредоносный код.`,
+      code:`<span class="kw">const</span> btn  = document.<span class="fn">querySelector</span>(<span class="str">'.btn'</span>);   <span class="cmt">// один элемент</span>
+<span class="kw">const</span> all  = document.<span class="fn">querySelectorAll</span>(<span class="str">'li'</span>); <span class="cmt">// NodeList (все совпадения)</span>
+
+title.textContent = <span class="str">'Безопасный текст'</span>; <span class="cmt">// ← используй для пользовательских данных</span>
+title.innerHTML   = <span class="str">'&lt;b&gt;HTML разметка&lt;/b&gt;'</span>; <span class="cmt">// только для своего доверенного контента!</span>
+
+btn.classList.<span class="fn">add</span>(<span class="str">'active'</span>);    <span class="cmt">// добавить класс</span>
+btn.classList.<span class="fn">toggle</span>(<span class="str">'hidden'</span>); <span class="cmt">// переключить класс</span>
+
+<span class="kw">const</span> li = document.<span class="fn">createElement</span>(<span class="str">'li'</span>);
+li.textContent = <span class="str">'Новый пункт'</span>;
+list.<span class="fn">append</span>(li); <span class="cmt">// добавить в конец</span>
+li.<span class="fn">remove</span>();   <span class="cmt">// удалить элемент</span>`,
+      trap:'innerHTML с пользовательским текстом = XSS-атака. Злоумышленник вставит <script> и выполнит код. ВСЕГДА textContent для того, что вводит пользователь.',
+      tip:'append() — в конец, prepend() — в начало, el.before() / el.after() — рядом. insertAdjacentElement() — точное позиционирование.',
+      links:[{t:'DOM nodes',u:'https://javascript.info/dom-nodes'},{t:'Modifying document',u:'https://javascript.info/modifying-document'}]
+    },
+    { id:'2t2', kind:'t', icon:'🖱️', title:'События: пользователь что-то сделал', time:'25 мин',
+      body:`Событие — это то, что делает пользователь: кликнул, нажал клавишу, отправил форму. Ты можешь «слушать» любое событие на любом элементе с помощью <code>addEventListener</code>.
+
+Когда событие срабатывает — JS передаёт тебе объект <code>event</code> со всей информацией: что именно произошло, на каком элементе, в какой точке экрана.
+
+Есть важный паттерн — <b>делегирование событий</b>. Вместо того чтобы вешать обработчик на каждый элемент списка отдельно, вешаешь один на весь список. Когда кликаешь на любой элемент — событие «всплывает» вверх и доходит до родителя. Там проверяешь через <code>e.target</code> на что именно кликнули.
+
+Это работает даже для элементов которые ты добавишь позже динамически — именно поэтому это главный паттерн.
+
+Ещё одно важное: в формах всегда пиши <code>e.preventDefault()</code> — иначе браузер перезагрузит страницу при отправке и ты потеряешь все данные.`,
+      code:`btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, (e) => {
+  console.log(e.target); <span class="cmt">// конкретный элемент, на который кликнули</span>
+  console.log(e.type);   <span class="cmt">// 'click'</span>
+});
+
+<span class="cmt">// Event delegation — ОДИН обработчик на всём списке (даже для динамических элементов!)</span>
+list.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, (e) => {
+  <span class="kw">if</span> (e.target.<span class="fn">matches</span>(<span class="str">'li'</span>)) e.target.classList.<span class="fn">toggle</span>(<span class="str">'done'</span>);
+});
+
+<span class="cmt">// Форма — ВСЕГДА preventDefault!</span>
+form.<span class="fn">addEventListener</span>(<span class="str">'submit'</span>, (e) => {
+  e.<span class="fn">preventDefault</span>();              <span class="cmt">// без этого страница перезагружается</span>
+  <span class="kw">const</span> val = input.value.<span class="fn">trim</span>(); <span class="cmt">// .trim() убирает пробелы по краям</span>
+  <span class="kw">if</span> (!val) <span class="kw">return</span>;              <span class="cmt">// защита от пустого ввода</span>
+});`,
+      trap:'e.preventDefault() в формах — без этого браузер перезагрузит страницу и ты потеряешь все данные. Это один из самых частых багов новичков.',
+      tip:'Event delegation работает даже для элементов добавленных позже — именно поэтому это главный паттерн при работе с динамическими списками.',
+      links:[{t:'Events intro',u:'https://javascript.info/introduction-browser-events'},{t:'Event delegation',u:'https://javascript.info/event-delegation'}]
+    },
+    { id:'2p1', kind:'p', icon:'🔥', title:'Задача: Живой поиск по списку', time:'60 мин', diff:'m',
+      goal:'Создай страницу с поиском, который фильтрует список в реальном времени',
+      templateId:'2p1',
+      steps:[
+        'Нажми кнопку ниже — скачается файл search.html с готовой HTML-структурой и стилями',
+        'Открой папку с файлом в VS Code → правая кнопка → <b>Open with Live Server</b>',
+        'Найди комментарий <code>// ТВОЙ КОД ЗДЕСЬ</code> и напиши логику внутри forEach',
+        'Для каждого <code>item</code>: сравни <code>item.textContent.toLowerCase()</code> с <code>query</code>',
+        'Совпадает → <code>item.style.display = ""</code>, не совпадает → <code>item.style.display = "none"</code>',
+        'Проверь что <code>emptyMsg</code> появляется когда ничего не найдено',
+      ],
+      selfcheck:[
+        'При вводе "поль" — видна только Польша',
+        'При пустом поле — видны все 10 стран',
+        'Поиск не зависит от регистра: "ПОЛЬША" и "польша" дают одинаковый результат',
+        'Нет совпадений → появляется "Ничего не найдено 🤷"',
+        '🔥 Бонус: найденное слово подсвечено тегом &lt;mark&gt;',
+      ],
+      tip:'items — это NodeList, не массив. Конвертируй: [...list.querySelectorAll("li")]\nitem.style.display = "" (пустая строка) — сбрасывает display, не прячет.',
+    },
+    { id:'2t3', kind:'t', icon:'💾', title:'localStorage: память браузера', time:'15 мин',
+      body:`Обычно когда закрываешь вкладку — все данные на странице пропадают. <code>localStorage</code> решает эту проблему: данные сохраняются в браузере и живут там даже после перезагрузки или закрытия.
+
+Есть одна ловушка: localStorage умеет хранить <b>только строки</b>. Если хочешь сохранить массив или объект — сначала преобразуй его в строку через <code>JSON.stringify</code>, а при чтении преобразуй обратно через <code>JSON.parse</code>.
+
+Вторая ловушка: если данных по этому ключу нет — <code>getItem</code> вернёт <code>null</code>. Если сразу сделать <code>JSON.parse(null)</code> — получишь <code>null</code> вместо массива и приложение сломается. Всегда проверяй: <code>raw ? JSON.parse(raw) : []</code>.`,
+      code:`<span class="cmt">// Сохранить массив объектов</span>
+<span class="kw">const</span> todos = [{ text: <span class="str">"Купить хлеб"</span>, done: <span class="kw">false</span> }];
+localStorage.<span class="fn">setItem</span>(<span class="str">'todos'</span>, JSON.<span class="fn">stringify</span>(todos));
+
+<span class="cmt">// Прочитать — ВСЕГДА проверяй на null!</span>
+<span class="kw">const</span> raw = localStorage.<span class="fn">getItem</span>(<span class="str">'todos'</span>);
+<span class="kw">const</span> todos = raw ? JSON.<span class="fn">parse</span>(raw) : []; <span class="cmt">// null → пустой массив</span>
+
+localStorage.<span class="fn">removeItem</span>(<span class="str">'todos'</span>); <span class="cmt">// удалить ключ</span>
+localStorage.<span class="fn">clear</span>();              <span class="cmt">// очистить всё хранилище</span>`,
+      trap:'getItem() возвращает null если ключа нет. JSON.parse(null) = null, а ты ждёшь массив — и получаешь баги. ВСЕГДА: raw ? JSON.parse(raw) : []',
+      tip:'sessionStorage — то же самое, но очищается при закрытии вкладки. Лимит localStorage ≈ 5 МБ на домен.',
+      links:[{t:'localStorage MDN',u:'https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage'}]
+    },
+    { id:'2p2', kind:'p', icon:'🔥', title:'Задача: Заметки с сохранением', time:'75 мин', diff:'m',
+      goal:'Создай приложение заметок по архитектуре: данные → рендер → localStorage',
+      templateId:'2p2',
+      steps:[
+        'Скачай шаблон ниже — там HTML, стили и заготовка JS с комментариями',
+        'Открой через <b>Live Server</b> в VS Code',
+        'Реализуй <code>addNote(text)</code> — добавляет объект <code>{id: Date.now(), text}</code> в массив <code>notes</code>',
+        'Реализуй <code>deleteNote(id)</code> — убирает из <code>notes</code> элемент с нужным id',
+        'Реализуй <code>render()</code> — очищает список и строит заново из <code>notes[]</code>',
+        'После каждого изменения: вызови <code>render()</code>, затем <code>saveToStorage()</code>',
+        'При загрузке страницы: загружай данные из <code>localStorage</code> и сразу вызывай <code>render()</code>',
+      ],
+      selfcheck:[
+        'Добавленная заметка мгновенно появляется в списке',
+        'Кнопка × удаляет именно свою заметку, а не все',
+        'После F5 все заметки сохраняются (localStorage работает)',
+        'Счётчик "Заметки (3)" обновляется при каждом изменении',
+        'Кнопка "Очистить всё" удаляет все заметки и обновляет localStorage',
+      ],
+      tip:'Date.now() возвращает уникальное число — идеальный id.\nnotes.filter(n => n.id !== id) — удаление без мутации массива.',
+    },
+  ]
+},
+{
+  id:3, emoji:'🌍', color:'#fbbf24', bg:'rgba(251,191,36,0.06)',
+  title:'Интернет и API',
+  tags:['fetch','Promises','async/await','REST','JSON'],
+  project:{ icon:'🌤️', name:'Погодное приложение', time:'4–6 ч',
+    desc:'Open-Meteo API — бесплатно, без регистрации и ключей. Поиск по городу, текущая погода, прогноз. Первый проект который использует реальные данные из интернета.' },
+  modules:[
+    { id:'3t1', kind:'t', icon:'🤝', title:'Promises: обещания JS', time:'25 мин',
+      body:`JS делает только одно дело в один момент времени — он однопоточный. Но некоторые операции долгие: загрузить файл, получить данные с сервера. Нельзя просто остановить всю страницу и ждать.
+
+Promise — это «обещание» что результат придёт позже. Ты говоришь «начни загрузку, и когда будет готово — вызови вот эту функцию».
+
+У Promise три состояния: <b>pending</b> (ждём), <b>fulfilled</b> (готово, всё ок), <b>rejected</b> (что-то пошло не так).
+
+<code>.then()</code> — что делать когда всё ок. <code>.catch()</code> — что делать при ошибке. <code>.finally()</code> — выполнится в любом случае.
+
+Никогда не забывай <code>.catch()</code> — без него ошибки будут тихо проглатываться и ты не поймёшь почему ничего не работает.`,
+      code:`<span class="kw">const</span> p = <span class="kw">new</span> <span class="fn">Promise</span>((resolve, reject) => {
+  <span class="fn">setTimeout</span>(() => <span class="fn">resolve</span>(<span class="str">"Готово!"</span>), <span class="num">1000</span>);
+});
+
+p.<span class="fn">then</span>(res  => console.log(res))    <span class="cmt">// "Готово!" через 1 сек</span>
+ .<span class="fn">catch</span>(err => console.error(err)) <span class="cmt">// если произошёл reject</span>
+ .<span class="fn">finally</span>(() => console.log(<span class="str">"В любом случае"</span>));
+
+<span class="cmt">// Несколько параллельных запросов — ждём все сразу</span>
+<span class="kw">const</span> [user, posts] = <span class="kw">await</span> Promise.<span class="fn">all</span>([<span class="fn">fetchUser</span>(), <span class="fn">fetchPosts</span>()]);`,
+      trap:'Забытый .catch() = тихая необработанная ошибка. Поведение становится непредсказуемым — и ты часами ищешь почему. Всегда обрабатывай ошибки.',
+      tip:'Promise.allSettled() — как Promise.all, но не падает если один Promise провалился. Удобно для необязательных данных.',
+      links:[{t:'Promises basics',u:'https://javascript.info/promise-basics'},{t:'Promise.all',u:'https://javascript.info/promise-api'}]
+    },
+    { id:'3t2', kind:'t', icon:'⏳', title:'async/await: красивый асинхронный код', time:'20 мин',
+      body:`<code>async/await</code> — это более удобный способ писать тот же код с Promise. Выглядит как обычный синхронный код, но на самом деле не блокирует браузер.
+
+<code>async</code> перед функцией означает что она будет возвращать Promise. <code>await</code> внутри неё — «подожди пока этот Promise выполнится, потом иди дальше».
+
+Ошибки ловишь через обычный <code>try/catch</code> — так же как в синхронном коде.
+
+Главная ловушка: <code>fetch</code> не считает ошибкой ответы с кодом 404 или 500. Он бросает ошибку только если нет интернета. Поэтому всегда проверяй <code>response.ok</code> вручную — иначе получишь молчаливый баг.`,
+      code:`<span class="kw">async function</span> <span class="fn">loadUser</span>(id) {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> res  = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">\`/api/users/\${id}\`</span>);
+
+    <span class="kw">if</span> (!res.ok) <span class="kw">throw new</span> Error(<span class="str">\`HTTP \${res.status}\`</span>); <span class="cmt">// ← fetch НЕ бросает при 404!</span>
+
+    <span class="kw">const</span> user = <span class="kw">await</span> res.<span class="fn">json</span>();
+    <span class="kw">return</span> user;
+  } <span class="kw">catch</span> (err) {
+    console.error(<span class="str">'Ошибка:'</span>, err.message);
+    <span class="kw">return</span> <span class="kw">null</span>; <span class="cmt">// или показывай сообщение пользователю</span>
+  }
+}`,
+      trap:'fetch НЕ бросает ошибку при 404 или 500 — только при проблемах сети! Всегда проверяй response.ok вручную. Это главная ловушка fetch.',
+      tip:'async функция ВСЕГДА возвращает Promise. loadUser(1) — это Promise, не данные. Снаружи нужен await или .then().',
+      links:[{t:'async/await',u:'https://javascript.info/async-await'}]
+    },
+    { id:'3p1', kind:'p', icon:'🔥', title:'Задача: Лента постов из API', time:'60 мин', diff:'m',
+      goal:'Подключись к реальному API и отображай данные на странице',
+      templateId:'3p1',
+      steps:[
+        'Скачай шаблон — там HTML с карточками и заготовка async функций',
+        'Открой через <b>Live Server</b>. API: <code>jsonplaceholder.typicode.com</code> — бесплатно, без регистрации',
+        'Реализуй <code>fetchPosts(page)</code> — делает GET запрос к <code>/posts?_limit=10&_page=1</code>',
+        'Перед запросом показывай лоадер (<code>loader.style.display = "block"</code>), после — скрывай',
+        '<b>Обязательно</b> проверяй <code>response.ok</code> — если false, бросай ошибку',
+        'Кнопка "Загрузить ещё" увеличивает переменную <code>page</code> и загружает следующую партию',
+        'В catch показывай ошибку пользователю — не console.error!',
+      ],
+      selfcheck:[
+        'При открытии страницы автоматически грузятся 10 постов',
+        'Кнопка "Загрузить ещё" добавляет следующие 10 (не заменяет!)',
+        'Пока идёт загрузка — виден индикатор "⏳ Загружаю..."',
+        'Открой DevTools → Network → увидишь реальные HTTP запросы',
+        'Отключи интернет → страница показывает сообщение об ошибке (не крашится)',
+      ],
+      tip:'let page = 1; — объяви выше функции, чтобы кнопка могла его увеличивать.\nresponse.ok — это не выброс ошибки, надо if (!response.ok) throw new Error(...).',
+    },
+    { id:'3t3', kind:'t', icon:'🔌', title:'REST API: GET POST PUT DELETE', time:'20 мин',
+      body:`API — это интерфейс через который твой код общается с сервером. REST — самое распространённое соглашение о том как строить такой интерфейс.
+
+Смысл простой: у каждого ресурса есть адрес (URL), и тип запроса говорит что ты хочешь сделать:
+
+<b>GET</b> — получить данные. <b>POST</b> — создать новую запись. <b>PUT</b> — обновить существующую. <b>DELETE</b> — удалить.
+
+Когда отправляешь данные на сервер — кладёшь их в <code>body</code> запроса в формате JSON, и обязательно указываешь заголовок <code>Content-Type: application/json</code> — без него сервер не поймёт что ты ему прислал.
+
+CORS — это защита браузера от запросов на чужие домены. Если получаешь ошибку CORS — проблема на стороне сервера, не в твоём коде. Сервер должен разрешить запросы от твоего домена.`,
+      code:`<span class="cmt">// POST — создать ресурс</span>
+<span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/posts'</span>, {
+  method: <span class="str">'POST'</span>,
+  headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+  body: JSON.<span class="fn">stringify</span>({ title: <span class="str">'Заголовок'</span>, body: <span class="str">'Текст'</span> })
+});
+
+<span class="cmt">// DELETE — удалить ресурс</span>
+<span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">\`/api/posts/\${id}\`</span>, { method: <span class="str">'DELETE'</span> });
+
+<span class="cmt">// PUT — обновить полностью</span>
+<span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">\`/api/posts/\${id}\`</span>, {
+  method: <span class="str">'PUT'</span>,
+  headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+  body: JSON.<span class="fn">stringify</span>(updatedPost)
+});`,
+      trap:'CORS — защита браузера. Из Postman / curl / Node.js работает. Из браузера — нужен заголовок от сервера. Не обходи, настраивай бэкенд.',
+      tip:'Postman или Bruno (open source) — тестируй API ДО написания кода. Убедись что работает — потом fetch.',
+      links:[{t:'JSONPlaceholder',u:'https://jsonplaceholder.typicode.com'},{t:'Open-Meteo API',u:'https://open-meteo.com'}]
+    },
+    { id:'3p2', kind:'p', icon:'🔥', title:'Задача: Погода прямо сейчас', time:'90 мин', diff:'h',
+      goal:'Два последовательных fetch: сначала координаты города, потом погода по координатам',
+      templateId:'3p2',
+      steps:[
+        'Скачай шаблон — там вся HTML структура и подсказки в комментариях',
+        '<b>Шаг 1:</b> <code>fetchCoords(city)</code> — запрос к geocoding API, возвращает {latitude, longitude, name}',
+        'URL геокодинга: <code>https://geocoding-api.open-meteo.com/v1/search?name=ГОРОД&count=1&language=ru</code>',
+        '<b>Шаг 2:</b> <code>fetchWeather(lat, lon)</code> — запрос к weather API по координатам',
+        'URL погоды: <code>https://api.open-meteo.com/v1/forecast?latitude=LAT&longitude=LON&current_weather=true</code>',
+        'Свяжи оба: <code>const coords = await fetchCoords(city); const weather = await fetchWeather(coords.latitude, coords.longitude);</code>',
+        'Покажи: название города, температура °C, скорость ветра км/ч',
+      ],
+      selfcheck:[
+        'Вводишь "Варшава" → видишь актуальную температуру',
+        'Вводишь "London" → тоже работает (API понимает английский)',
+        'Пока грузится — видны skeleton-блоки или спиннер',
+        'Несуществующий город → понятное сообщение об ошибке',
+        '🔥 Бонус: добавлен прогноз на 6 часов из поля hourly',
+      ],
+      tip:'Первый await дожидается координат, второй использует их. Это называется "последовательные запросы".\nconst geo = await fetchCoords(city); — geo.latitude нужен для следующего вызова.',
+    },
+  ]
+},
+{
+  id:4, emoji:'🚀', color:'#f472b6', bg:'rgba(244,114,182,0.06)',
+  title:'Профессиональный старт',
+  tags:['Git','ES Modules','Tooling','React preview','Портфолио'],
+  project:{ icon:'🏆', name:'Портфолио сайт', time:'5–8 ч',
+    desc:'3 проекта из курса, секция навыков, живой деплой на GitHub Pages. Эту ссылку отправляешь вместо сопроводительного письма.' },
+  modules:[
+    { id:'4t1', kind:'t', icon:'🌿', title:'Git: машина времени для кода', time:'25 мин',
+      body:`Git — это машина времени для твоего кода. Ты делаешь «снимок» проекта в любой момент, и потом можешь вернуться к любому прошлому снимку если что-то сломал.
+
+GitHub — сайт где хранятся эти снимки онлайн. Это одновременно резервная копия и публичное портфолио — работодатели смотрят на твой GitHub.
+
+Базовый процесс каждый день:
+
+<b>git add .</b> — отмечаешь какие файлы изменились и хочешь сохранить.
+<b>git commit -m "описание"</b> — делаешь снимок с описанием что сделал.
+<b>git push</b> — отправляешь снимок на GitHub.
+
+Ветки позволяют работать над новой фичей не ломая основной код. Сделал — проверил — слил в main.
+
+Главное правило: никогда не коммить файлы с паролями и токенами. Добавь их в <code>.gitignore</code> до первого коммита.`,
+      code:`git init                              <span class="cmt"># создать репозиторий в папке</span>
+git add .                             <span class="cmt"># добавить все изменения в stage</span>
+git commit -m <span class="str">"feat: add todo app"</span>  <span class="cmt"># зафиксировать</span>
+git push origin main                  <span class="cmt"># отправить на GitHub</span>
+
+git checkout -b feature/dark-mode     <span class="cmt"># создать новую ветку</span>
+git merge feature/dark-mode           <span class="cmt"># слить ветку в main</span>
+git log --oneline --graph             <span class="cmt"># красивая история изменений</span>`,
+      trap:'НИКОГДА не коммить .env файлы с токенами и паролями! Добавь .env в .gitignore ДО первого commit. Уже закоммитил — меняй ключи немедленно, они скомпрометированы.',
+      tip:'Conventional commits: feat:, fix:, docs:, refactor:, chore:. История проекта читается как changelog — так делают все профессиональные команды.',
+      links:[{t:'Learn Git Branching',u:'https://learngitbranching.js.org'},{t:'GitHub',u:'https://github.com'}]
+    },
+    { id:'4p1', kind:'p', icon:'🔥', title:'Задача: Все проекты на GitHub', time:'60 мин', diff:'m',
+      goal:'Выложи все три проекта на GitHub и получи живую ссылку',
+      checklist:[
+        'Создан аккаунт на <a href="https://github.com" target="_blank">github.com</a> (или уже есть)',
+        'Создан новый репозиторий с именем <code>js-course-projects</code>',
+        'В репозитории три папки: <code>week1-calculator/</code>, <code>week2-notes/</code>, <code>week3-weather/</code>',
+        'В каждой папке есть файл <code>README.md</code> — что делает проект и как запустить',
+        'Все файлы закоммичены: <code>git add . → git commit -m "feat: add projects" → git push</code>',
+        'Включён GitHub Pages: Settings → Pages → Deploy from branch → main → Save',
+        'Живая ссылка <code>https://ТВОй_НИК.github.io/js-course-projects</code> открывается в браузере',
+      ],
+      tip:'Скриншот в README.md = +100 к профессиональному облику. Рекрутер видит это первым.\ngit init нужен только если папка ещё не репозиторий.',
+    },
+    { id:'4t2', kind:'t', icon:'📦', title:'ES Modules: организуй код', time:'20 мин',
+      body:`Когда проект растёт — держать весь код в одном файле становится невозможно. Модули решают эту проблему: разбиваешь код на файлы, каждый отвечает за свою часть.
+
+Из любого файла можно <b>экспортировать</b> функции, переменные, классы. В другом файле <b>импортируешь</b> только то что нужно.
+
+Два вида экспорта:
+
+<b>Default export</b> — один главный экспорт из файла. Импортируешь с любым именем.
+<b>Named export</b> — именованные экспорты, можно несколько. Импортируешь в фигурных скобках точно с тем же именем.
+
+Важно: модули не работают если открыть HTML файл двойным кликом — только через HTTP сервер. В VS Code это Live Server, или запусти <code>npx serve .</code> в терминале.`,
+      code:`<span class="cmt">// api.js — всё что связано с сетью</span>
+<span class="kw">export const</span> BASE_URL = <span class="str">'https://api.example.com'</span>;
+<span class="kw">export async function</span> <span class="fn">fetchUser</span>(id) { ... }
+<span class="kw">export default class</span> ApiService { ... }
+
+<span class="cmt">// main.js — импортируем нужное</span>
+<span class="kw">import</span> ApiService <span class="kw">from</span> <span class="str">'./api.js'</span>;              <span class="cmt">// default export</span>
+<span class="kw">import</span> { fetchUser, BASE_URL } <span class="kw">from</span> <span class="str">'./api.js'</span>; <span class="cmt">// named exports</span>
+
+<span class="cmt">&lt;!-- В HTML — type="module" обязателен! --&gt;</span>
+<span class="cmt">&lt;script type="module" src="main.js"&gt;&lt;/script&gt;</span>`,
+      trap:'ES Modules не работают по file:// (двойной клик). Нужен HTTP-сервер. VS Code → Live Server или: npx serve .',
+      tip:'Vite — современный инструмент сборки: npm create vite@latest → выбираешь vanilla-js → hot reload из коробки. Это стандарт индустрии 2025.',
+      links:[{t:'Modules intro',u:'https://javascript.info/modules-intro'},{t:'Vite docs',u:'https://vitejs.dev'}]
+    },
+    { id:'4t3', kind:'t', icon:'⚛️', title:'React: что это и зачем', time:'20 мин',
+      body:`React — это библиотека для построения интерфейсов из компонентов. Компонент — это просто функция которая возвращает HTML (точнее JSX — HTML-подобный синтаксис прямо в JS).
+
+Всё что ты уже умеешь — переменные, функции, массивы, fetch — всё это работает в React так же. Просто организация кода другая.
+
+Главная идея: <b>данные управляют интерфейсом</b>. Ты меняешь данные — React сам перерисовывает то что нужно.
+
+<code>useState</code> — специальная переменная которая при изменении автоматически перерисовывает компонент. Обычная переменная этого не делает.
+
+<code>useEffect</code> — выполняет код после отрисовки. Например загрузить данные с сервера при открытии страницы.
+
+JSX выглядит как HTML но с отличиями: <code>className</code> вместо <code>class</code>, <code>onClick</code> вместо <code>onclick</code>, все теги должны быть закрыты.`,
+      code:`<span class="cmt">// Компонент — функция, возвращающая JSX</span>
+<span class="kw">function</span> <span class="fn">Button</span>({ text, onClick }) {
+  <span class="kw">return</span> &lt;button onClick={onClick}&gt;{text}&lt;/button&gt;;
+}
+
+<span class="cmt">// useState — данные + автоматический перерендер</span>
+<span class="kw">function</span> <span class="fn">Counter</span>() {
+  <span class="kw">const</span> [count, setCount] = <span class="fn">useState</span>(<span class="num">0</span>); <span class="cmt">// [значение, сеттер]</span>
+  <span class="kw">return</span> (
+    &lt;div&gt;
+      &lt;p&gt;Счёт: {count}&lt;/p&gt;
+      &lt;Button text=<span class="str">"Нажми"</span> onClick={() =&gt; <span class="fn">setCount</span>(count + <span class="num">1</span>)} /&gt;
+    &lt;/div&gt;
+  );
+}`,
+      trap:'JSX — не HTML. className вместо class, onClick вместо onclick, htmlFor вместо for. Закрывай все теги: <img />, <input />, <br />.',
+      tip:'Путь к мидлу: React → useState/useEffect → React Router → TypeScript → Next.js. Это 6–12 месяцев практики.',
+      links:[{t:'React docs',u:'https://react.dev'},{t:'Frontend Mentor',u:'https://www.frontendmentor.io'},{t:'The Odin Project',u:'https://www.theodinproject.com'}]
+    },
+    { id:'4p2', kind:'p', icon:'🏆', title:'Финал: Портфолио сайт', time:'120 мин', diff:'h',
+      goal:'Создай персональный сайт с проектами — первое что отправляешь работодателям',
+      templateId:'4p2',
+      checklist:[
+        'Скачан шаблон и открыт через Live Server — базовая структура отображается',
+        'Секция Hero: твоё имя + "Junior Frontend Developer" + кнопка-ссылка на проекты',
+        'Секция Проекты: 3 карточки со скриншотом, описанием и ссылками на GitHub и демо',
+        'Секция Навыки: HTML, CSS, JavaScript, Git, Fetch API, DOM — хотя бы 6 навыков',
+        'Секция Контакты: ссылки на GitHub и Telegram/email',
+        'Адаптивный дизайн: сайт нормально выглядит на телефоне (DevTools → Toggle device)',
+        'Все кнопки и ссылки имеют <code>transition</code> при hover — анимация есть',
+        'Задеплоено на GitHub Pages — живая ссылка работает',
+      ],
+      tip:'html { scroll-behavior: smooth; } — плавный скролл по якорям. Одна строка CSS.\nCSS transition: all 0.2s ease — ставь на все интерактивные элементы сразу.',
+    },
+  ]
+},
+];
+
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+let activeWeek = 1;
+let expanded   = null;
+let done       = {};
+let unlocked   = {1: true};
+let checks     = {}; // {modId: [true, false, ...]} — состояние чекбоксов
+
+/* ═══════════════════════════════════════════════════════════
+   PERSISTENCE
+═══════════════════════════════════════════════════════════ */
+function save() {
+  localStorage.setItem('jscourse_v4', JSON.stringify({done, unlocked, checks}));
+}
+function load() {
+  try {
+    const raw = localStorage.getItem('jscourse_v4');
+    if (raw) { const d = JSON.parse(raw); done = d.done||{}; unlocked = d.unlocked||{1:true}; checks = d.checks||{}; }
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════════ */
+function practices(wid) { return WEEKS.find(w=>w.id===wid).modules.filter(m=>m.kind==='p'); }
+function weekDone(wid)  { return practices(wid).every(m => done[m.id]); }
+function globalProg() {
+  const all = WEEKS.flatMap(w => practices(w.id));
+  const n   = all.filter(m => done[m.id]).length;
+  return { n, total: all.length, pct: Math.round(n/all.length*100) };
+}
+function recalcUnlocked() {
+  WEEKS.forEach((w, i) => { if (i > 0 && weekDone(WEEKS[i-1].id)) unlocked[w.id] = true; });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════════════════════ */
+function renderAll() {
+  recalcUnlocked();
+  renderTopbar();
+  renderSidebar();
+  renderMain();
+  setTimeout(() => {
+    restoreCheckboxes();
+    if (expanded) attachEditorHotkey(expanded);
+  }, 20);
+}
+
+function renderTopbar() {
+  const p = globalProg();
+  document.getElementById('top-sub-text').textContent = `4 недели · ${p.n}/${p.total} задач выполнено`;
+  document.getElementById('global-bar').style.width = p.pct + '%';
+  document.getElementById('global-pct').textContent  = p.pct + '%';
+}
+
+function renderSidebar() {
+  const wrap = document.getElementById('sidebar-weeks');
+  wrap.innerHTML = WEEKS.map(w => {
+    const pracs = practices(w.id);
+    const n     = pracs.filter(m => done[m.id]).length;
+    const isActive  = activeWeek === w.id;
+    const isLocked  = !unlocked[w.id];
+    const isDone    = weekDone(w.id);
+    const pctBar    = pracs.length ? Math.round(n/pracs.length*100) : 0;
+
+    return `<button class="wk-btn${isActive?' active':''}${isLocked?' locked':''}"
+      onclick="switchWeek(${w.id})"
+      style="${isActive ? `background:${w.bg};border-color:${w.color}33` : ''}">
+      <span class="wk-emoji">${isLocked ? '🔒' : w.emoji}</span>
+      <div class="wk-info">
+        <div class="wk-name" style="${isActive?`color:${w.color}`:''}">Неделя ${w.id}: ${w.title}</div>
+        <div class="wk-stat">${isLocked ? 'Заблокировано' : `${n}/${pracs.length} задач${isDone?' ✅':''}`}</div>
+      </div>
+    </button>`;
+  }).join('');
+}
+
+function renderMain() {
+  const main = document.getElementById('main');
+  const w    = WEEKS.find(x => x.id === activeWeek);
+  const locked = !unlocked[activeWeek];
+
+  if (locked) {
+    main.innerHTML = `<div class="locked-screen">
+      <div class="locked-icon">🔒</div>
+      <div class="locked-title">Неделя заблокирована</div>
+      <div class="locked-sub">Выполни все практические задания предыдущей недели — и эта откроется.</div>
+    </div>`;
+    return;
+  }
+
+  const pracs = practices(w.id);
+  const n     = pracs.filter(m => done[m.id]).length;
+  const pct   = pracs.length ? Math.round(n/pracs.length*100) : 0;
+  const wDone = weekDone(w.id);
+
+  const modsHTML = w.modules.map(mod => renderModule(mod, w)).join('');
+
+  const completeHTML = wDone ? `
+    <div class="week-complete">
+      <div class="wc-title">🎉 Неделя ${w.id} завершена!</div>
+      <div class="wc-sub">${w.id < 4
+        ? `Неделя ${w.id+1} разблокирована → переходи дальше`
+        : '🏆 Ты прошёл весь курс! Пора собеседоваться на джуна.'
+      }</div>
+      ${w.id < 4 ? `<button class="btn btn-done" style="background:${WEEKS[w.id].color}" onclick="switchWeek(${w.id+1})">Неделя ${w.id+1} →</button>` : ''}
+    </div>` : '';
+
+  main.innerHTML = `
+    <div class="week-hero">
+      <div class="week-number">НЕДЕЛЯ ${w.id} из 4</div>
+      <div class="week-title"><span style="color:${w.color}">${w.emoji}</span> ${w.title}</div>
+      <div class="week-tags">${w.tags.map(t=>`<span class="wtag">${t}</span>`).join('')}</div>
+
+      <div class="proj-card" style="border-color:${w.color}30; background:${w.bg}">
+        <div class="proj-icon">${w.project.icon}</div>
+        <div>
+          <div class="proj-name" style="color:${w.color}">Финальный проект: ${w.project.name}</div>
+          <div class="proj-desc">${w.project.desc}</div>
+          <div class="proj-time">⏱ ${w.project.time}</div>
+        </div>
+      </div>
+
+      <div class="week-prog">
+        <div class="week-prog-bar">
+          <div class="week-prog-fill" style="width:${pct}%; background:${w.color}"></div>
+        </div>
+        <div class="week-prog-label" style="color:${w.color}">${n}/${pracs.length} задач</div>
+      </div>
+    </div>
+
+    <div class="modules">${modsHTML}</div>
+    ${completeHTML}
+  `;
+}
+
+function renderModule(mod, w) {
+  const isPractice = mod.kind === 'p';
+  const isDone     = done[mod.id];
+  const isOpen     = expanded === mod.id;
+  const diff = {s:'tag-diff-s',m:'tag-diff-m',h:'tag-diff-h'};
+  const diffLabel = {s:'Старт',m:'Средний',h:'Хардкор'};
+
+  const modClass = isDone ? (isPractice ? 'mod is-done-practice' : 'mod is-done-theory') : 'mod';
+
+  return `<div class="${modClass}" id="mod-${mod.id}">
+    <div class="mod-header" tabindex="0"
+      onclick="toggleMod('${mod.id}')"
+      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleMod('${mod.id}')}">
+      <div class="mod-header-icon">${isDone ? (isPractice ? '✅' : '📖') : mod.icon}</div>
+      <div class="mod-header-info">
+        <div class="mod-header-title">${mod.title}</div>
+        <div class="mod-header-tags">
+          <span class="tag ${isPractice?'tag-p':'tag-t'}">${isPractice?'ПРАКТИКА':'ТЕОРИЯ'}</span>
+          <span class="tag tag-time">${mod.time}</span>
+          ${isPractice ? '<span class="tag tag-req">⚠ ОБЯЗАТЕЛЬНО</span>' : ''}
+          ${isDone ? '<span class="tag tag-ok">✓ ВЫПОЛНЕНО</span>' : ''}
+          ${mod.diff ? `<span class="tag ${diff[mod.diff]}">${diffLabel[mod.diff]}</span>` : ''}
+        </div>
+      </div>
+      <span class="mod-chevron${isOpen?' open':''}">▶</span>
+    </div>
+    ${isOpen ? renderModBody(mod, w, isPractice, isDone) : ''}
+  </div>`;
+}
+
+function renderModBody(mod, w, isPractice, isDone) {
+  const fmtText  = t => t ? t.replace(/\n/g, '<br>') : '';
+  const fmtProse = t => t ? t.split(/\n\n+/).map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('') : '';
+
+  if (!isPractice) {
+    // ── THEORY ──────────────────────────────────────────────
+    const codeId = `code-${mod.id}`;
+    return `<div class="mod-body">
+      <div class="prose">${fmtProse(mod.body)}</div>
+      ${mod.code ? `<div class="code-wrap"><div class="code-block" id="${codeId}">${mod.code}</div><button class="copy-btn" onclick="copyCode('${codeId}',this)">копировать</button></div>` : ''}
+      ${mod.trap ? `<div class="infobox trap"><span class="infobox-icon"></span><span class="infobox-text">⚠️ <strong>Ловушка:</strong> ${fmtText(mod.trap)}</span></div>` : ''}
+      ${mod.tip  ? `<div class="infobox tip"><span class="infobox-icon"></span><span class="infobox-text">🎯 <strong>Фишка:</strong> ${fmtText(mod.tip)}</span></div>` : ''}
+      ${mod.links ? `<div class="links-row">${mod.links.map(l=>`<a href="${l.u}" target="_blank" rel="noopener" class="link-chip">📎 ${l.t} ↗</a>`).join('')}</div>` : ''}
+      <div class="actions">
+        ${isDone
+          ? `<div class="done-chip">📖 ${done[mod.id]==='skip'?'Пропущено':'Прочитано'}</div>`
+          : `<button class="btn btn-skip" onclick="markDone('${mod.id}','skip')" title="Знаю эту тему, пропускаю">Знаю, пропустить</button>
+             <button class="btn btn-read" onclick="markDone('${mod.id}','read')">✓ Прочитал, понял</button>`
+        }
+      </div>
+      ${renderNotesBlock(mod.id)}
+    </div>`;
+  }
+
+  // ── JS TASK with test runner ──────────────────────────────
+  if (mod.tests) {
+    const edId = `ed-${mod.id}`;
+    const resId = `res-${mod.id}`;
+    const savedCode = localStorage.getItem('code-' + mod.id) || mod.starter;
+    return `<div class="mod-body">
+      <div class="req-note">⚠️ Это задание нельзя пропустить — напиши код и пройди все тесты.</div>
+      <div class="task-goal">🎯 Задача: ${mod.goal}</div>
+      <div class="editor-label">✏️ Редактор — пиши код прямо здесь</div>
+      <textarea class="editor" id="${edId}" spellcheck="false" oninput="saveEditorCode('${mod.id}',this.value)">${escAttr(savedCode)}</textarea>
+      <div class="run-row">
+        <button class="run-btn" onclick="runTests('${mod.id}')">▶ Запустить тесты</button>
+        <span class="run-hint">Shift+Enter тоже работает</span>
+      </div>
+      <div id="${resId}" class="test-results"></div>
+      ${mod.tip ? `<div class="infobox tip" style="margin-top:12px"><span class="infobox-icon"></span><span class="infobox-text">💡 <strong>Подсказка:</strong> ${fmtText(mod.tip)}</span></div>` : ''}
+      <div class="actions" style="margin-top:12px">
+        ${isDone ? `<div class="done-chip">✅ Все тесты пройдены</div>` : ''}
+      </div>
+      ${renderNotesBlock(mod.id)}
+    </div>`;
+  }
+
+  // ── STEPS TASK with template download ────────────────────
+  if (mod.steps) {
+    const scId = `sc-${mod.id}`;
+    return `<div class="mod-body">
+      <div class="req-note">⚠️ Это задание нельзя пропустить — отметь когда реально сделаешь.</div>
+      <div class="task-goal-steps">🎯 Задача: ${mod.goal}</div>
+      ${mod.templateId ? `<button class="tpl-btn" onclick="downloadTemplate('${mod.templateId}')">⬇ Скачать стартовый шаблон</button>` : ''}
+      <div class="steps-list">${mod.steps.map((s,i) => `<div class="step"><div class="step-num">${i+1}</div><div>${s}</div></div>`).join('')}</div>
+      ${mod.selfcheck ? `<div class="selfcheck-wrap">
+        <div class="selfcheck-title">✅ Проверь себя перед тем как отметить выполненным</div>
+        ${mod.selfcheck.map((c,i) => `<label class="check-item" id="${scId}-${i}">
+          <input type="checkbox" onchange="updateSelfCheck('${scId}',${mod.selfcheck.length})"> <span>${c}</span>
+        </label>`).join('')}
+      </div>` : ''}
+      ${mod.tip ? `<div class="infobox tip" style="margin-top:12px"><span class="infobox-icon"></span><span class="infobox-text">💡 <strong>Подсказка:</strong> ${fmtText(mod.tip)}</span></div>` : ''}
+      <div class="actions" id="act-${mod.id}">
+        ${isDone
+          ? `<div class="done-chip">✅ Задание выполнено</div>`
+          : `<button class="btn btn-done" id="done-btn-${mod.id}" style="background:${w.color};opacity:.4;pointer-events:none" onclick="markDone('${mod.id}')">✓ Выполнил задание</button>
+             <span style="font-size:11px;color:var(--t3);font-family:var(--mono)">сначала отметь все пункты выше</span>`
+        }
+      </div>
+      ${renderNotesBlock(mod.id)}
+    </div>`;
+  }
+
+  // ── CHECKLIST TASK ────────────────────────────────────────
+  if (mod.checklist) {
+    const clId = `cl-${mod.id}`;
+    return `<div class="mod-body">
+      <div class="req-note">⚠️ Выполни каждый пункт — потом отмечай.</div>
+      <div class="task-goal">🎯 Задача: ${mod.goal}</div>
+      <div class="cl-progress" id="${clId}-prog">
+        <div class="cl-prog-bar"><div class="cl-prog-fill" id="${clId}-fill" style="width:0%"></div></div>
+        <span id="${clId}-count">0 / ${mod.checklist.length}</span>
+      </div>
+      <div class="checklist-wrap">
+        ${mod.checklist.map((c,i) => `<label class="cl-item" id="${clId}-${i}">
+          <input type="checkbox" onchange="updateChecklist('${mod.id}','${clId}',${mod.checklist.length})">
+          <span>${c}</span>
+        </label>`).join('')}
+      </div>
+      ${mod.tip ? `<div class="infobox tip"><span class="infobox-icon"></span><span class="infobox-text">💡 <strong>Подсказка:</strong> ${fmtText(mod.tip)}</span></div>` : ''}
+      <div class="actions" id="act-${mod.id}">
+        ${isDone
+          ? `<div class="done-chip">✅ Всё выполнено</div>`
+          : `<button class="btn btn-done" id="done-btn-${mod.id}" style="background:${w.color};opacity:.4;pointer-events:none" onclick="markDone('${mod.id}')">✓ Отметить выполненным</button>`
+        }
+      </div>
+      ${renderNotesBlock(mod.id)}
+    </div>`;
+  }
+
+  // fallback
+  return `<div class="mod-body"><div class="req-note">⚠️ Это задание нельзя пропустить.</div>
+    <div class="actions">${isDone ? `<div class="done-chip">✅ Выполнено</div>` : `<button class="btn btn-done" style="background:${w.color}" onclick="markDone('${mod.id}')">✓ Выполнил</button>`}</div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HELPER FUNCTIONS
+═══════════════════════════════════════════════════════════ */
+function escAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function saveEditorCode(modId, val) { try { localStorage.setItem('code-'+modId, val); } catch(e) {} }
+
+function findModule(id) {
+  for (const w of WEEKS) { for (const m of w.modules) { if (m.id === id) return m; } }
+  return null;
+}
+
+function runTests(modId) {
+  const mod = findModule(modId);
+  if (!mod || !mod.tests) return;
+  const edEl = document.getElementById('ed-' + modId);
+  const resEl = document.getElementById('res-' + modId);
+  if (!edEl || !resEl) return;
+  const code = edEl.value;
+  const results = mod.tests.map(t => {
+    try {
+      const fn = new Function(code + '\nreturn (' + t.call + ')');
+      const got = fn();
+      const passed = String(got) === String(t.expect);
+      return { label: t.label, passed, got, expect: t.expect };
+    } catch(e) {
+      return { label: t.label, passed: false, got: '🚨 ' + e.message, expect: t.expect };
+    }
+  });
+  const allPass = results.every(r => r.passed);
+  resEl.innerHTML = results.map(r => `
+    <div class="test-case ${r.passed?'test-pass':'test-fail'}">
+      <span class="test-icon">${r.passed?'✅':'❌'}</span>
+      <div>
+        <div class="test-label">${r.label}</div>
+        ${!r.passed ? `<div class="test-got">Получили: ${JSON.stringify(r.got)} · Ожидалось: ${JSON.stringify(r.expect)}</div>` : ''}
+      </div>
+    </div>`).join('') +
+    (allPass ? `<div class="all-pass-banner">🎉 Все тесты пройдены! Можешь отмечать задание выполненным.</div>` : '');
+  if (allPass && !done[modId]) markDone(modId);
+  // Re-attach keydown after render
+  setTimeout(() => attachEditorHotkey(modId), 50);
+}
+
+function attachEditorHotkey(modId) {
+  const ed = document.getElementById('ed-' + modId);
+  if (!ed) return;
+  // Remove old listener by cloning (simplest way to avoid duplicates)
+  const fresh = ed.cloneNode(true);
+  ed.parentNode.replaceChild(fresh, ed);
+  fresh.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); runTests(modId); }
+    if (e.key === 'Tab') { e.preventDefault(); const s = fresh.selectionStart, v = fresh.value; fresh.value = v.slice(0,s) + '  ' + v.slice(fresh.selectionEnd); fresh.selectionStart = fresh.selectionEnd = s + 2; }
+  });
+}
+
+function updateSelfCheck(scId, total) {
+  const anyEl = document.getElementById(scId + '-0');
+  if (!anyEl) return;
+  // Collect current checkbox states and save them
+  const states = [];
+  for (let i = 0; i < total; i++) {
+    const el = document.getElementById(scId + '-' + i);
+    const cb = el ? el.querySelector('input') : null;
+    states.push(cb ? cb.checked : false);
+    if (el && cb) el.classList.toggle('checked', cb.checked);
+  }
+  const modId = scId.replace('sc-', '');
+  checks[modId] = states;
+  save();
+  const checked = states.filter(Boolean).length;
+  const modBody = anyEl.closest('.mod-body');
+  if (!modBody) return;
+  const btn = modBody.querySelector('.btn-done');
+  if (btn) { btn.style.opacity = checked >= total ? '1' : '.4'; btn.style.pointerEvents = checked >= total ? 'auto' : 'none'; }
+}
+
+function updateChecklist(modId, clId, total) {
+  const states = [];
+  for (let i = 0; i < total; i++) {
+    const el = document.getElementById(clId + '-' + i);
+    const cb = el ? el.querySelector('input') : null;
+    states.push(cb ? cb.checked : false);
+    if (el && cb) el.classList.toggle('checked', cb.checked);
+  }
+  checks[modId] = states;
+  save();
+  const checked = states.filter(Boolean).length;
+  const fill = document.getElementById(clId + '-fill');
+  const count = document.getElementById(clId + '-count');
+  if (fill) fill.style.width = Math.round(checked/total*100) + '%';
+  if (count) count.textContent = checked + ' / ' + total;
+  const btn = document.getElementById('done-btn-' + modId);
+  if (btn) { btn.style.opacity = checked >= total ? '1' : '.4'; btn.style.pointerEvents = checked >= total ? 'auto' : 'none'; }
+}
+
+
+
+// Notes block — shown at bottom of every module body
+function renderNotesBlock(modId) {
+  const saved = localStorage.getItem('mnote-' + modId) || '';
+  const hasDot = saved.trim() ? 'has-note' : '';
+  return `
+    <div class="mod-notes-wrap" id="notes-wrap-${modId}">
+      <div class="mod-notes-label" onclick="toggleNotes('${modId}')">
+        <span class="note-dot ${hasDot}" id="note-dot-${modId}"></span>
+        📝 Мои заметки к этой теме
+        <span style="margin-left:auto;opacity:.5;font-size:10px" id="note-toggle-${modId}">${saved.trim() ? '▾ скрыть' : '▸ показать'}</span>
+      </div>
+      <div id="notes-body-${modId}" style="${saved.trim() ? '' : 'display:none'}">
+        <textarea class="mod-notes-textarea" id="note-${modId}"
+          placeholder="Пиши сюда мысли, вопросы, наблюдения... Сохраняется автоматически."
+          oninput="saveNote('${modId}', this)">${escAttr(saved)}</textarea>
+        <div class="mod-notes-saved" id="note-saved-${modId}">✓ сохранено</div>
+      </div>
+    </div>`;
+}
+
+function toggleNotes(modId) {
+  const body = document.getElementById('notes-body-' + modId);
+  const lbl  = document.getElementById('note-toggle-' + modId);
+  if (!body) return;
+  const hidden = body.style.display === 'none';
+  body.style.display = hidden ? '' : 'none';
+  if (lbl) lbl.textContent = hidden ? '▾ скрыть' : '▸ показать';
+  if (hidden) { const ta = document.getElementById('note-' + modId); if (ta) ta.focus(); }
+}
+
+let noteSaveTimer = {};
+function saveNote(modId, ta) {
+  clearTimeout(noteSaveTimer[modId]);
+  noteSaveTimer[modId] = setTimeout(() => {
+    localStorage.setItem('mnote-' + modId, ta.value);
+    const dot = document.getElementById('note-dot-' + modId);
+    if (dot) dot.classList.toggle('has-note', ta.value.trim().length > 0);
+    const chip = document.getElementById('note-saved-' + modId);
+    if (chip) { chip.classList.add('visible'); setTimeout(() => chip.classList.remove('visible'), 2000); }
+  }, 600);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESTORE CHECKBOX STATES AFTER RENDER
+═══════════════════════════════════════════════════════════ */
+function restoreCheckboxes() {
+  // Restore selfcheck (steps tasks)
+  WEEKS.forEach(w => w.modules.forEach(mod => {
+    const saved = checks[mod.id];
+    if (!saved || !saved.length) return;
+    if (mod.steps && mod.selfcheck) {
+      const scId = 'sc-' + mod.id;
+      saved.forEach((state, i) => {
+        const el = document.getElementById(scId + '-' + i);
+        if (!el) return;
+        const cb = el.querySelector('input');
+        if (cb) { cb.checked = state; el.classList.toggle('checked', state); }
+      });
+      const checked = saved.filter(Boolean).length;
+      const total = mod.selfcheck.length;
+      const modBody = document.getElementById('sc-' + mod.id + '-0')?.closest('.mod-body');
+      if (modBody) {
+        const btn = modBody.querySelector('.btn-done');
+        if (btn) { btn.style.opacity = checked >= total ? '1' : '.4'; btn.style.pointerEvents = checked >= total ? 'auto' : 'none'; }
+      }
+    }
+    if (mod.checklist) {
+      const clId = 'cl-' + mod.id;
+      const total = mod.checklist.length;
+      saved.forEach((state, i) => {
+        const el = document.getElementById(clId + '-' + i);
+        if (!el) return;
+        const cb = el.querySelector('input');
+        if (cb) { cb.checked = state; el.classList.toggle('checked', state); }
+      });
+      const checked = saved.filter(Boolean).length;
+      const fill = document.getElementById(clId + '-fill');
+      const count = document.getElementById(clId + '-count');
+      if (fill) fill.style.width = Math.round(checked/total*100) + '%';
+      if (count) count.textContent = checked + ' / ' + total;
+      const btn = document.getElementById('done-btn-' + mod.id);
+      if (btn) { btn.style.opacity = checked >= total ? '1' : '.4'; btn.style.pointerEvents = checked >= total ? 'auto' : 'none'; }
+    }
+  }));
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TEMPLATES FOR DOWNLOAD
+═══════════════════════════════════════════════════════════ */
+const TEMPLATES = {
+'2p1': `<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Живой поиск</title>
+<style>
+* { box-sizing: border-box; }
+body { font-family: system-ui, sans-serif; max-width: 480px; margin: 48px auto; padding: 0 24px; background: #f8fafc; }
+h2 { margin-bottom: 16px; color: #1e293b; }
+input { width: 100%; padding: 12px 16px; font-size: 15px; border: 2px solid #e2e8f0; border-radius: 10px; outline: none; transition: border-color .15s; }
+input:focus { border-color: #6366f1; }
+ul { list-style: none; padding: 0; margin-top: 12px; background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; overflow: hidden; }
+li { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #334155; }
+li:last-child { border-bottom: none; }
+.empty { display: none; padding: 16px; text-align: center; color: #94a3b8; font-size: 14px; }
+</style>
+</head>
+<body>
+<h2>🔍 Поиск по странам</h2>
+<input type="text" id="search" placeholder="Введи название страны...">
+<ul id="list">
+  <li>Польша</li><li>Германия</li><li>Франция</li><li>Италия</li><li>Испания</li>
+  <li>Швеция</li><li>Норвегия</li><li>Нидерланды</li><li>Португалия</li><li>Австрия</li>
+</ul>
+<p class="empty" id="empty">Ничего не найдено 🤷</p>
+<script>
+const searchInput = document.getElementById('search');
+const list = document.getElementById('list');
+const emptyMsg = document.getElementById('empty');
+const items = [...list.querySelectorAll('li')]; // NodeList → массив
+
+searchInput.addEventListener('input', () => {
+  const query = searchInput.value.toLowerCase().trim();
+
+  // ШАГ 1: покажи или скрой каждый элемент
+  items.forEach(item => {
+    const text = item.textContent.toLowerCase();
+    // ТВОЙ КОД: если text содержит query — показывай, иначе скрывай
+    // item.style.display = ???
+  });
+
+  // ШАГ 2: если ни одного видимого — покажи emptyMsg
+  const hasVisible = items.some(item => item.style.display !== 'none');
+  emptyMsg.style.display = hasVisible || query === '' ? 'none' : 'block';
+});
+<\/script>
+</body>
+</html>`,
+
+'2p2': `<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Заметки</title>
+<style>
+* { box-sizing: border-box; }
+body { font-family: system-ui, sans-serif; max-width: 500px; margin: 48px auto; padding: 0 24px; background: #f8fafc; }
+h2 { margin-bottom: 16px; color: #1e293b; }
+.add-row { display: flex; gap: 8px; margin-bottom: 16px; }
+input { flex: 1; padding: 11px 14px; font-size: 14px; border: 2px solid #e2e8f0; border-radius: 10px; outline: none; }
+input:focus { border-color: #6366f1; }
+button.add { padding: 11px 18px; background: #6366f1; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+button.add:hover { background: #4f46e5; }
+ul { list-style: none; padding: 0; }
+li { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 8px; font-size: 14px; color: #334155; }
+button.del { background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer; padding: 0 4px; }
+button.del:hover { color: #ef4444; }
+button.clear { background: none; border: 1px solid #e2e8f0; border-radius: 8px; padding: 7px 14px; font-size: 13px; color: #64748b; cursor: pointer; margin-top: 8px; }
+button.clear:hover { background: #fff1f2; color: #ef4444; border-color: #fca5a5; }
+</style>
+</head>
+<body>
+<h2>📝 Заметки (<span id="count">0</span>)</h2>
+<div class="add-row">
+  <input type="text" id="input" placeholder="Новая заметка...">
+  <button class="add" onclick="handleAdd()">Добавить</button>
+</div>
+<ul id="list"></ul>
+<button class="clear" onclick="clearAll()">Очистить всё</button>
+
+<script>
+// ЕДИНСТВЕННЫЙ источник правды — этот массив
+let notes = [];
+
+// Загрузка из localStorage при старте
+function loadFromStorage() {
+  const raw = localStorage.getItem('my-notes');
+  notes = raw ? JSON.parse(raw) : [];
+}
+
+// Сохранение в localStorage
+function saveToStorage() {
+  localStorage.setItem('my-notes', JSON.stringify(notes));
+}
+
+// Полная перерисовка списка (вызывай после каждого изменения!)
+function render() {
+  document.getElementById('count').textContent = notes.length;
+  const list = document.getElementById('list');
+  list.innerHTML = notes.map(note =>
+    \`<li>
+      <span>\${note.text}</span>
+      <button class="del" onclick="deleteNote(\${note.id})">×</button>
+    </li>\`
+  ).join('');
+}
+
+function addNote(text) {
+  // ТВОЙ КОД: создай объект {id: Date.now(), text} и добавь в notes
+}
+
+function deleteNote(id) {
+  // ТВОЙ КОД: убери из notes элемент с этим id
+  // Подсказка: notes = notes.filter(...)
+}
+
+function handleAdd() {
+  const input = document.getElementById('input');
+  const text = input.value.trim();
+  if (!text) return;
+  addNote(text);
+  input.value = '';
+  render();
+  saveToStorage();
+}
+
+function clearAll() {
+  notes = [];
+  render();
+  saveToStorage();
+}
+
+// Запуск: загрузи данные и сразу отрисуй
+loadFromStorage();
+render();
+<\/script>
+</body>
+</html>`,
+
+'3p1': `<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Лента постов</title>
+<style>
+* { box-sizing: border-box; }
+body { font-family: system-ui, sans-serif; max-width: 600px; margin: 48px auto; padding: 0 24px; background: #f8fafc; }
+h2 { margin-bottom: 20px; color: #1e293b; }
+.card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 20px; margin-bottom: 12px; }
+.card h3 { font-size: 15px; color: #1e293b; margin-bottom: 8px; text-transform: capitalize; }
+.card p { font-size: 13px; color: #64748b; line-height: 1.6; }
+#loader { text-align: center; padding: 20px; color: #94a3b8; display: none; }
+#error { background: #fff1f2; border: 1px solid #fca5a5; border-radius: 10px; padding: 14px; color: #ef4444; display: none; margin-bottom: 12px; }
+#load-more { display: block; width: 100%; padding: 12px; background: #6366f1; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 16px; }
+#load-more:hover { background: #4f46e5; }
+</style>
+</head>
+<body>
+<h2>📰 Лента постов</h2>
+<div id="error"></div>
+<div id="posts"></div>
+<div id="loader">⏳ Загружаю...</div>
+<button id="load-more" onclick="loadMore()">Загрузить ещё</button>
+
+<script>
+let page = 1; // текущая страница
+
+// Загружает посты и добавляет их в список
+async function fetchPosts(pageNum) {
+  const loader = document.getElementById('loader');
+  const errorEl = document.getElementById('error');
+  const postsEl = document.getElementById('posts');
+
+  try {
+    loader.style.display = 'block';
+    errorEl.style.display = 'none';
+
+    // ТВОЙ КОД: сделай fetch запрос
+    const url = \`https://jsonplaceholder.typicode.com/posts?_limit=10&_page=\${pageNum}\`;
+    const response = await fetch(url);
+
+    // ОБЯЗАТЕЛЬНО проверь response.ok!
+    if (!response.ok) throw new Error(\`Ошибка сервера: \${response.status}\`);
+
+    const posts = await response.json();
+
+    // ТВОЙ КОД: для каждого поста создай .card и добавь в postsEl
+    posts.forEach(post => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = \`<h3>\${post.title}</h3><p>\${post.body}</p>\`;
+      postsEl.appendChild(card);
+    });
+
+  } catch (err) {
+    // ТВОЙ КОД: покажи ошибку пользователю
+    errorEl.style.display = 'block';
+    errorEl.textContent = '😔 Не удалось загрузить посты: ' + err.message;
+  } finally {
+    loader.style.display = 'none';
+  }
+}
+
+function loadMore() {
+  page++;
+  fetchPosts(page);
+}
+
+// Загружаем первую страницу при старте
+fetchPosts(page);
+<\/script>
+</body>
+</html>`,
+
+'3p2': `<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Погода</title>
+<style>
+* { box-sizing: border-box; }
+body { font-family: system-ui, sans-serif; max-width: 460px; margin: 48px auto; padding: 0 24px; background: #f0f9ff; }
+h2 { margin-bottom: 16px; color: #0c4a6e; }
+.search { display: flex; gap: 8px; margin-bottom: 20px; }
+input { flex: 1; padding: 11px 14px; font-size: 15px; border: 2px solid #bae6fd; border-radius: 10px; outline: none; }
+input:focus { border-color: #0284c7; }
+button { padding: 11px 18px; background: #0284c7; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.weather-card { background: #fff; border-radius: 14px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,.08); display: none; }
+.city-name { font-size: 22px; font-weight: 700; color: #0c4a6e; margin-bottom: 4px; }
+.temp { font-size: 48px; font-weight: 800; color: #0284c7; }
+.wind { font-size: 14px; color: #64748b; margin-top: 8px; }
+.error { background: #fff1f2; border: 1px solid #fca5a5; border-radius: 10px; padding: 14px; color: #ef4444; display: none; margin-top: 12px; }
+.loading { text-align: center; padding: 24px; color: #94a3b8; display: none; }
+</style>
+</head>
+<body>
+<h2>🌤️ Погода</h2>
+<div class="search">
+  <input type="text" id="city" placeholder="Введи город..." value="Варшава">
+  <button onclick="searchWeather()">Найти</button>
+</div>
+<div class="loading" id="loading">⏳ Загружаю...</div>
+<div class="error" id="error"></div>
+<div class="weather-card" id="card">
+  <div class="city-name" id="city-name"></div>
+  <div class="temp" id="temp"></div>
+  <div class="wind" id="wind"></div>
+</div>
+
+<script>
+// ШАГ 1: город → координаты
+async function fetchCoords(city) {
+  const url = \`https://geocoding-api.open-meteo.com/v1/search?name=\${encodeURIComponent(city)}&count=1&language=ru\`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Ошибка геокодинга');
+  const data = await res.json();
+  if (!data.results || data.results.length === 0) throw new Error('Город не найден');
+  return data.results[0]; // { name, latitude, longitude }
+}
+
+// ШАГ 2: координаты → погода
+async function fetchWeather(lat, lon) {
+  const url = \`https://api.open-meteo.com/v1/forecast?latitude=\${lat}&longitude=\${lon}&current_weather=true\`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Ошибка погодного API');
+  const data = await res.json();
+  return data.current_weather; // { temperature, windspeed, weathercode }
+}
+
+async function searchWeather() {
+  const city = document.getElementById('city').value.trim();
+  if (!city) return;
+
+  const loading = document.getElementById('loading');
+  const errorEl = document.getElementById('error');
+  const card = document.getElementById('card');
+
+  loading.style.display = 'block';
+  errorEl.style.display = 'none';
+  card.style.display = 'none';
+
+  try {
+    // ТВОЙ КОД: два последовательных await
+    const coords = await fetchCoords(city);
+    const weather = await fetchWeather(coords.latitude, coords.longitude);
+
+    // Показываем результат
+    document.getElementById('city-name').textContent = coords.name;
+    document.getElementById('temp').textContent = weather.temperature + '°C';
+    document.getElementById('wind').textContent = 'Ветер: ' + weather.windspeed + ' км/ч';
+    card.style.display = 'block';
+
+  } catch (err) {
+    errorEl.style.display = 'block';
+    errorEl.textContent = '😔 ' + err.message;
+  } finally {
+    loading.style.display = 'none';
+  }
+}
+
+// Загрузить погоду сразу при открытии
+searchWeather();
+<\/script>
+</body>
+</html>`,
+
+'4p2': `<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Имя Фамилия — Frontend Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: #09090b; color: #e4e4e7; line-height: 1.6; }
+a { color: #818cf8; text-decoration: none; transition: all .2s; }
+a:hover { color: #a5b4fc; }
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* NAV */
+nav { position: sticky; top: 0; background: rgba(9,9,11,.85); backdrop-filter: blur(12px); border-bottom: 1px solid #27272a; z-index: 100; padding: 14px 0; }
+nav .container { display: flex; justify-content: space-between; align-items: center; }
+.nav-logo { font-weight: 800; font-size: 16px; color: #e4e4e7; }
+.nav-links { display: flex; gap: 24px; }
+.nav-links a { color: #71717a; font-size: 14px; font-weight: 500; transition: color .2s; }
+.nav-links a:hover { color: #e4e4e7; }
+
+/* HERO */
+.hero { padding: 100px 0 80px; text-align: center; }
+.hero-badge { display: inline-block; padding: 5px 14px; border-radius: 99px; background: rgba(129,140,248,.1); border: 1px solid rgba(129,140,248,.2); color: #a5b4fc; font-size: 13px; font-weight: 600; margin-bottom: 20px; }
+.hero h1 { font-size: clamp(36px, 6vw, 60px); font-weight: 800; line-height: 1.1; margin-bottom: 16px; }
+.hero p { font-size: 17px; color: #71717a; max-width: 480px; margin: 0 auto 32px; }
+.hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-primary { padding: 12px 28px; background: #818cf8; color: #fff; border-radius: 10px; font-weight: 700; transition: all .2s; }
+.btn-primary:hover { background: #6366f1; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(99,102,241,.4); color: #fff; }
+.btn-secondary { padding: 12px 28px; border: 1px solid #27272a; color: #a1a1aa; border-radius: 10px; font-weight: 600; transition: all .2s; }
+.btn-secondary:hover { border-color: #52525b; color: #e4e4e7; }
+
+/* SECTIONS */
+section { padding: 80px 0; border-top: 1px solid #18181b; }
+.section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #818cf8; margin-bottom: 8px; }
+.section-heading { font-size: 32px; font-weight: 800; margin-bottom: 40px; }
+
+/* PROJECTS */
+.projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.project-card { background: #18181b; border: 1px solid #27272a; border-radius: 14px; overflow: hidden; transition: all .25s; }
+.project-card:hover { border-color: #3f3f46; transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,.4); }
+.project-img { height: 140px; background: linear-gradient(135deg, #1e1b4b, #312e81); display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.project-body { padding: 16px; }
+.project-name { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.project-desc { font-size: 13px; color: #71717a; margin-bottom: 14px; line-height: 1.5; }
+.project-links { display: flex; gap: 8px; }
+.project-link { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #27272a; color: #a1a1aa; transition: all .15s; }
+.project-link:hover { border-color: #52525b; color: #e4e4e7; }
+
+/* SKILLS */
+.skills-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.skill { padding: 8px 18px; background: #18181b; border: 1px solid #27272a; border-radius: 99px; font-size: 14px; font-weight: 500; color: #a1a1aa; transition: all .2s; }
+.skill:hover { border-color: #818cf8; color: #818cf8; }
+
+/* CONTACT */
+.contact-links { display: flex; gap: 12px; flex-wrap: wrap; }
+.contact-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border: 1px solid #27272a; border-radius: 10px; font-size: 14px; font-weight: 600; color: #a1a1aa; transition: all .2s; }
+.contact-btn:hover { border-color: #818cf8; color: #818cf8; transform: translateY(-1px); }
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .hero { padding: 60px 0 50px; }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-logo">ИФ.dev</div>
+    <div class="nav-links">
+      <a href="#projects">Проекты</a>
+      <a href="#skills">Навыки</a>
+      <a href="#contact">Контакты</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">Открыт к работе</div>
+    <h1>Привет, я <span style="color:#818cf8">Имя</span> 👋</h1>
+    <p>Junior Frontend Developer. Пишу на JavaScript, работаю с DOM и API, строю реальные проекты.</p>
+    <div class="hero-btns">
+      <a href="#projects" class="btn-primary">Мои проекты</a>
+      <a href="#contact" class="btn-secondary">Связаться</a>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="container">
+    <div class="section-title">Работы</div>
+    <div class="section-heading">Мои проекты</div>
+    <div class="projects-grid">
+
+      <div class="project-card">
+        <div class="project-img">🎮</div>
+        <div class="project-body">
+          <div class="project-name">Игра Hangman</div>
+          <div class="project-desc">Угадай слово — чистый JS, DOM, массивы и события.</div>
+          <div class="project-links">
+            <a href="#" class="project-link">GitHub ↗</a>
+            <a href="#" class="project-link">Демо ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-img">📝</div>
+        <div class="project-body">
+          <div class="project-name">Todo App</div>
+          <div class="project-desc">Приложение заметок с сохранением в localStorage.</div>
+          <div class="project-links">
+            <a href="#" class="project-link">GitHub ↗</a>
+            <a href="#" class="project-link">Демо ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-img">🌤️</div>
+        <div class="project-body">
+          <div class="project-name">Погодное приложение</div>
+          <div class="project-desc">Fetch API, async/await, реальные данные Open-Meteo.</div>
+          <div class="project-links">
+            <a href="#" class="project-link">GitHub ↗</a>
+            <a href="#" class="project-link">Демо ↗</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="container">
+    <div class="section-title">Стек</div>
+    <div class="section-heading">Навыки</div>
+    <div class="skills-grid">
+      <span class="skill">HTML5</span>
+      <span class="skill">CSS3</span>
+      <span class="skill">JavaScript</span>
+      <span class="skill">DOM API</span>
+      <span class="skill">Fetch API</span>
+      <span class="skill">async/await</span>
+      <span class="skill">localStorage</span>
+      <span class="skill">Git</span>
+      <span class="skill">GitHub</span>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="container">
+    <div class="section-title">Связь</div>
+    <div class="section-heading">Контакты</div>
+    <div class="contact-links">
+      <a href="https://github.com" target="_blank" class="contact-btn">💻 GitHub</a>
+      <a href="https://t.me" target="_blank" class="contact-btn">✈️ Telegram</a>
+      <a href="mailto:you@email.com" class="contact-btn">📧 Email</a>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>`
+};
+
+function downloadTemplate(id) {
+  const html = TEMPLATES[id];
+  if (!html) return;
+  const names = {'2p1':'search.html','2p2':'notes.html','3p1':'posts.html','3p2':'weather.html','4p2':'portfolio.html'};
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = names[id] || 'template.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ACTIONS
+═══════════════════════════════════════════════════════════ */
+function switchWeek(id) {
+  if (!unlocked[id]) return;
+  activeWeek = id;
+  expanded   = null;
+  renderAll();
+  document.getElementById('main').scrollTop = 0;
+}
+
+function toggleMod(id) {
+  const main = document.getElementById('main');
+  const scrollY = main.scrollTop;
+  expanded = (expanded === id) ? null : id;
+  renderAll();
+  main.scrollTop = scrollY;
+  if (expanded) {
+    setTimeout(() => {
+      const el = document.getElementById('mod-' + id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 60);
+  }
+}
+
+function markDone(id, val = true) {
+  const main = document.getElementById('main');
+  const scrollY = main.scrollTop;
+  done[id] = val;
+  recalcUnlocked();
+  save();
+  renderAll();
+  main.scrollTop = scrollY;
+}
+
+function copyCode(codeId, btn) {
+  const el = document.getElementById(codeId);
+  if (!el) return;
+  // Strip HTML tags to get plain text
+  const tmp = document.createElement('div');
+  tmp.innerHTML = el.innerHTML;
+  const text = tmp.textContent || tmp.innerText || '';
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'скопировано ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'копировать'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    btn.textContent = 'ошибка';
+    setTimeout(() => { btn.textContent = 'копировать'; }, 2000);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════ */
+load();
+renderAll();
+// Attach hotkeys for any open JS editors
+setTimeout(() => {
+  WEEKS.forEach(w => w.modules.forEach(m => { if (m.tests) attachEditorHotkey(m.id); }));
+}, 100);
+</script>
+</body>
+</html>
